@@ -1,9 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Sep  3 14:33:36 2021
+
+@author: Nikkikong
+"""
 import json
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+from scipy.optimize import minimize
 
 ###################
 ###Read Data
@@ -75,8 +85,7 @@ y_linear_test= np.array(test_linear['weight'])
 
 # Normalize the data
 
-from sklearn.preprocessing import StandardScaler
-scaler = StandardScaler()
+
 
 scaler.fit(x_linear_train.reshape(-1, 1))
 x_linear_train_scale=(scaler.transform(x_linear_train.reshape(-1, 1)))
@@ -101,8 +110,8 @@ def f_mse(m,b,x,y):
 
 # Use SciPy optimizer to train the parameters
 
-from scipy.optimize import minimize
-linear_opt=minimize(lambda coef: f_mse(*coef,x_linear_train_scale,y_linear_train_scale), x0=[0,0])
+
+linear_opt=minimize(lambda coef: f_mse(*coef,x_linear_train_scale,y_linear_train_scale), x0=np.random.uniform(0.5,1,size=2))
 
 y_pred_scale=linear_opt.x[1]+linear_opt.x[0]*x_linear_train_scale
 
@@ -152,7 +161,7 @@ plt.show()
 
 
 # Dataset partition
-train_log, test_log = train_test_split(df, test_size=0.2)
+train_log, test_log = train_test_split(df, test_size=0.2,stratify='is_adult')
 
 ### Here we have age as x, weight as y
 x_log_train= np.array(train_log['age'])
@@ -189,7 +198,7 @@ def f_mse_log(a,w,x0,s,x,y):
 
 # Use SciPy optimizer to train the parameters
 
-log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train_scale,y_log_train_scale), x0=[0.1,0.1,0.1,0.1])
+log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train_scale,y_log_train_scale), x0=np.random.uniform(0.5,1,size=4))
 
 y_pred_scale=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
 y_pred_inverse=(np.std(y_log_train))*y_pred_scale+np.mean(y_log_train).tolist()
@@ -233,8 +242,7 @@ plt.show()
 ###Logistic Regression(is_adult&weight)
 ###################################
 
-# We have do the partition
-# not consider normalize data for this model
+# We have done the partition
 
 
 
@@ -246,18 +254,28 @@ x_log_train= np.array(train_log['weight'])
 y_log_test= np.array(test_log['is_adult'])
 x_log_test= np.array(test_log['weight'])
 
+# Normalize the x
 
+
+scaler.fit(x_log_train.reshape(-1, 1))
+x_log_train_scale=(scaler.transform(x_log_train.reshape(-1, 1)))
+
+
+
+scaler.fit(x_log_test.reshape(-1, 1))
+x_log_test_scale=(scaler.transform(x_log_test.reshape(-1, 1)))
+
+x_log_train_scale=x_log_train_scale.tolist()
+x_log_train_scale= [ item for elem in x_log_train_scale for item in elem]
 
 ### Use SciPy optimizer to train the parameters
 
 
 # Use SciPy optimizer to train the parameters
 
-log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train,y_log_train), x0=[1,1,0,0.3])
+log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train_scale,y_log_train), x0=np.random.uniform(0.5,1,size=4))
 
-y_pred=log_opt.x[0]/(1+np.exp(-(x_log_train-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
-# y_pred_inverse=(np.std(y_log_train))*y_pred_scale+np.mean(y_log_train).tolist()
-# y_pred_inverse= [ item for elem in y_pred_inverse for item in elem]
+y_pred=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
 
 
 
@@ -266,19 +284,23 @@ mse_train_log=np.mean((y_log_train - y_pred)**2)
 
 # Train MAE
 mae_train_log=np.mean(abs(y_log_train - y_pred))
-# Test MSE
-y_pred_scale_test=log_opt.x[0]/(1+np.exp(-(x_log_test_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
-y_pred_inverse_test=(np.std(y_log_test))*y_pred_scale_test+np.mean(y_log_test).tolist()
-y_pred_inverse_test=[ item for elem in y_pred_inverse_test for item in elem]
-mse_test_log=np.mean((y_log_test - np.array(y_pred_inverse_test))**2)
-# Test MAE
-mae_test_log=np.mean(abs(y_log_test - np.array(y_pred_inverse_test)))
+# # Test MSE
+# y_pred_scale_test=log_opt.x[0]/(1+np.exp(-(x_log_test_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
+# y_pred_inverse_test=(np.std(y_log_test))*y_pred_scale_test+np.mean(y_log_test).tolist()
+# y_pred_inverse_test=[ item for elem in y_pred_inverse_test for item in elem]
+# mse_test_log=np.mean((y_log_test - np.array(y_pred_inverse_test))**2)
+# # Test MAE
+# mae_test_log=np.mean(abs(y_log_test - np.array(y_pred_inverse_test)))
 
-### plot the result
-
+# ### plot the result
+xs, ys = zip(*sorted(zip(x_log_train, y_pred)))
 fig, ax = plt.subplots()
-ax.plot(dataset.weight,dataset.is_adult, 'o')
-ax.plot(x_log_train, y_pred, '-')
+
+
+ax.plot(x_log_train, y_log_train, 'o',label="Training Set")
+ax.plot(x_log_test, y_log_test, 'x',label="Testing Set")
+ax.plot(xs, ys, 'r-',label="Model")
+
 
 ax.legend()
 plt.ylabel("weight(lb)", fontsize=18)
@@ -287,5 +309,6 @@ plt.xlabel("age(years)", fontsize=18)
 # plt.text(40, 130, 'Train MAE: {}'.format(mae_train_log))
 # plt.text(40, 110, 'Test MSE: {}'.format(mse_test_log))
 # plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
-plt.title("Logistic regression (weight&age)", fontsize=18)
+plt.title("Logistic regression (is_adult&weight)", fontsize=18)
 plt.show()
+
