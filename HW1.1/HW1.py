@@ -111,24 +111,17 @@ y_pred_scale=linear_opt.x[1]+linear_opt.x[0]*x_linear_train_scale
 y_pred_inverse=(np.std(y_linear_train))*y_pred_scale+np.mean(y_linear_train).tolist()
 y_pred_inverse= [ item for elem in y_pred_inverse for item in elem]
 # Train MSE
-y_linear_train - y_pred_inverse
-from sklearn.metrics import mean_squared_error
-mean_squared_error(y_linear_train.tolist(),y_pred_inverse)
 mse_train_linear=np.mean((y_linear_train - np.array(y_pred_inverse))**2)
-listi=y_linear_train.tolist()
 
-np.sum((y_linear_train - y_pred_inverse)**2)/y_pred_inverse.shape[0]
-np.square(np.subtract(y_linear_train,y_pred_inverse)).mean()
-mean_squared_error(y_linear_train,y_pred_inverse)
 # Train MAE
-from sklearn.metrics import mean_absolute_error as mae
 mae_train_linear=np.mean(abs(y_linear_train - np.array(y_pred_inverse)))
 # Test MSE
 y_pred_scale_test=linear_opt.x[1]+linear_opt.x[0]*x_linear_test_scale
-y_pred_inverse_test=(np.std(y_linear_test))*y_pred_scale_test+np.mean(y_linear_test)
-mse_test_linear=np.mean((y_linear_test - y_pred_inverse_test)**2)
+y_pred_inverse_test=(np.std(y_linear_test))*y_pred_scale_test+np.mean(y_linear_test).tolist()
+y_pred_inverse_test=[ item for elem in y_pred_inverse_test for item in elem]
+mse_test_linear=np.mean((y_linear_test - np.array(y_pred_inverse_test))**2)
 # Test MAE
-mae_test_linear=mae(y_linear_test,y_pred_inverse_test)
+mae_test_linear=np.mean(abs(y_linear_test - np.array(y_pred_inverse_test)))
 
 ### plot the result
 
@@ -139,10 +132,96 @@ ax.plot(x_linear_train, y_pred_inverse, '-')
 ax.legend()
 plt.ylabel("weight(lb)", fontsize=18)
 plt.xlabel("age(years)", fontsize=18)
-plt.title("Linear regression (weight&age)")
+plt.text(40, 150, 'Train MSE: {}'.format(mse_train_linear))
+plt.text(40, 130, 'Train MAE: {}'.format(mae_train_linear))
+plt.text(40, 110, 'Test MSE: {}'.format(mse_test_linear))
+plt.text(40, 90, 'Test MAE: {}'.format(mae_test_linear))
+plt.title("Linear regression (weight&age)", fontsize=18)
 plt.show()
 
 
 
-list=y_pred_inverse.tolist()
-flatList = [ item for elem in list for item in elem]
+
+###################################
+###Logistic Regression(weight&age)
+###################################
+
+
+### do the partition, no need to subset this time, apply to both logistic regression
+
+
+# Dataset partition
+train_log, test_log = train_test_split(df, test_size=0.2)
+
+### Here we have age as x, weight as y
+x_log_train= np.array(train_log['age'])
+y_log_train= np.array(train_log['weight'])
+
+x_log_test= np.array(test_log['age'])
+y_log_test= np.array(test_log['weight'])
+
+# Normalize the data
+
+
+scaler.fit(x_log_train.reshape(-1, 1))
+x_log_train_scale=(scaler.transform(x_log_train.reshape(-1, 1)))
+
+scaler.fit(y_log_train.reshape(-1, 1))
+y_log_train_scale=(scaler.transform(y_log_train.reshape(-1, 1)))
+
+scaler.fit(x_log_test.reshape(-1, 1))
+x_log_test_scale=(scaler.transform(x_log_test.reshape(-1, 1)))
+
+scaler.fit(y_log_test.reshape(-1, 1))
+y_log_test_scale=(scaler.transform(y_log_test.reshape(-1, 1)))
+
+
+
+### Use SciPy optimizer to train the parameters
+
+# use mean square error (MSE) as the loss function
+
+def f_mse_log(a,w,x0,s,x,y):
+    y_pred=a/(1+np.exp(-(x-x0)/w))+s
+    mse=np.mean((y - y_pred)**2)
+    return mse
+
+# Use SciPy optimizer to train the parameters
+
+log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train_scale,y_log_train_scale), x0=[0.1,0.1,0.1,0.1])
+
+y_pred_scale=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
+y_pred_inverse=(np.std(y_log_train))*y_pred_scale+np.mean(y_log_train).tolist()
+y_pred_inverse= [ item for elem in y_pred_inverse for item in elem]
+
+
+
+# Train MSE
+mse_train_log=np.mean((y_log_train - np.array(y_pred_inverse))**2)
+
+# Train MAE
+mae_train_log=np.mean(abs(y_log_train - np.array(y_pred_inverse)))
+# Test MSE
+y_pred_scale_test=log_opt.x[0]/(1+np.exp(-(x_log_test_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
+y_pred_inverse_test=(np.std(y_log_test))*y_pred_scale_test+np.mean(y_log_test).tolist()
+y_pred_inverse_test=[ item for elem in y_pred_inverse_test for item in elem]
+mse_test_linear=np.mean((y_linear_test - np.array(y_pred_inverse_test))**2)
+# Test MAE
+mae_test_linear=np.mean(abs(y_linear_test - np.array(y_pred_inverse_test)))
+
+### plot the result
+
+fig, ax = plt.subplots()
+ax.plot(dataset.age, dataset.weight, 'o')
+ax.plot(x_log_train, y_pred_inverse, '-')
+
+ax.legend()
+plt.ylabel("weight(lb)", fontsize=18)
+plt.xlabel("age(years)", fontsize=18)
+plt.text(40, 150, 'Train MSE: {}'.format(mse_train_linear))
+plt.text(40, 130, 'Train MAE: {}'.format(mae_train_linear))
+plt.text(40, 110, 'Test MSE: {}'.format(mse_test_linear))
+plt.text(40, 90, 'Test MAE: {}'.format(mae_test_linear))
+plt.title("Linear regression (weight&age)", fontsize=18)
+plt.show()
+
