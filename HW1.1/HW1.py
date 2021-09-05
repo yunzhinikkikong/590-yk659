@@ -211,18 +211,19 @@ mse_test_log=np.mean((y_log_test - np.array(y_pred_inverse_test))**2)
 mae_test_log=np.mean(abs(y_log_test - np.array(y_pred_inverse_test)))
 
 ### plot the result
-
+xs, ys = zip(*sorted(zip(x_log_train, y_pred_inverse)))
 fig, ax = plt.subplots()
-ax.plot(dataset.age, dataset.weight, 'o')
-ax.plot(x_log_train, y_pred_inverse, '-')
+ax.plot(x_log_train, y_log_train, 'o',label="Training Set")
+ax.plot(x_log_test, y_log_test, 'x',label="Testing Set")
+ax.plot(xs, ys, 'r-',label="Model")
 
 ax.legend()
 plt.ylabel("weight(lb)", fontsize=18)
 plt.xlabel("age(years)", fontsize=18)
-plt.text(40, 150, 'Train MSE: {}'.format(mse_train_log))
-plt.text(40, 130, 'Train MAE: {}'.format(mae_train_log))
-plt.text(40, 110, 'Test MSE: {}'.format(mse_test_log))
-plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
+# plt.text(40, 150, 'Train MSE: {}'.format(mse_train_log))
+# plt.text(40, 130, 'Train MAE: {}'.format(mae_train_log))
+# plt.text(40, 110, 'Test MSE: {}'.format(mse_test_log))
+# plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
 plt.title("Logistic regression (weight&age)", fontsize=18)
 plt.show()
 
@@ -288,4 +289,3 @@ plt.xlabel("age(years)", fontsize=18)
 # plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
 plt.title("Logistic regression (weight&age)", fontsize=18)
 plt.show()
-
