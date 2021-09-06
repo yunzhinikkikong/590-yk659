@@ -5,7 +5,6 @@ Created on Fri Sep  3 14:33:36 2021
 
 @author: Nikkikong
 """
-
 import json
 import matplotlib
 import matplotlib.pyplot as plt
@@ -90,20 +89,16 @@ y_linear_test= np.array(test_linear['weight'])
 
 scaler.fit(x_linear_train.reshape(-1, 1))
 x_linear_train_scale=(scaler.transform(x_linear_train.reshape(-1, 1)))
-# .tolist()
-# x_linear_train_scale= [ item for elem in x_linear_train_scale for item in elem]
+
 scaler.fit(x_linear_test.reshape(-1, 1))
 x_linear_test_scale=(scaler.transform(x_linear_test.reshape(-1, 1)))
-# .tolist()
-# x_linear_test_scale= [ item for elem in x_linear_test_scale for item in elem]
+
 scaler.fit(y_linear_test.reshape(-1, 1))
 y_linear_test_scale=(scaler.transform(y_linear_test.reshape(-1, 1)))
-# .tolist()
-# y_linear_test_scale= [ item for elem in y_linear_test_scale for item in elem]
+
 scaler.fit(y_linear_train.reshape(-1, 1))
 y_linear_train_scale=(scaler.transform(y_linear_train.reshape(-1, 1)))
-# .tolist()
-# y_linear_train_scale= [ item for elem in y_linear_train_scale for item in elem]
+
 ### Use SciPy optimizer to train the parameters
 
 # use mean square error (MSE) as the loss function
@@ -115,8 +110,46 @@ def f_mse(m,b,x,y):
 
 # Use SciPy optimizer to train the parameters
 
+#SAVE HISTORY FOR PLOTTING AT THE END
 
-linear_opt=minimize(lambda coef: f_mse(*coef,x_linear_train_scale,y_linear_train_scale), x0=np.random.uniform(0.5,1,size=2))
+
+iterations=[]
+loss_train=[]
+loss_test=[]
+
+iteration=0
+def loss(p):
+      global iteration,iterations,loss_train,loss_test
+      training_loss=f_mse(p[0],p[1],x_linear_train_scale,y_linear_train_scale)
+      test_loss=f_mse(p[0],p[1],x_linear_test_scale,y_linear_test_scale)
+      loss_train.append(training_loss)
+      loss_test.append(test_loss)
+      iterations.append(iteration)
+
+      iteration+=1
+      
+      return(training_loss)
+
+
+linear_opt = minimize(loss, np.random.uniform(0.5,1,size=2), tol=1e-8)
+
+
+### Ploting the Training and Testing Loss
+
+
+
+fig, ax = plt.subplots()
+ax.plot(iterations, loss_train, 'o', label="Training Loss")
+ax.plot(iterations, loss_test, 'o', label="Testing Loss")
+
+
+ax.legend()
+plt.ylabel("Loss", fontsize=18)
+plt.xlabel("iterations", fontsize=18)
+plt.title("Training and Testing Loss", fontsize=18)
+plt.show()
+
+
 
 y_pred_scale=linear_opt.x[1]+linear_opt.x[0]*x_linear_train_scale
 
@@ -147,10 +180,6 @@ ax.plot(x_linear_test, y_linear_test, 'ro', label="Testing")
 ax.legend()
 plt.ylabel("weight(lb)", fontsize=18)
 plt.xlabel("age(years)", fontsize=18)
-# plt.text(40, 150, 'Train MSE: {}'.format(mse_train_linear))
-# plt.text(40, 130, 'Train MAE: {}'.format(mae_train_linear))
-# plt.text(40, 110, 'Test MSE: {}'.format(mse_test_linear))
-# plt.text(40, 90, 'Test MAE: {}'.format(mae_test_linear))
 plt.title("Linear regression (weight&age<18)", fontsize=18)
 plt.show()
 
@@ -203,7 +232,41 @@ def f_mse_log(a,w,x0,s,x,y):
 
 # Use SciPy optimizer to train the parameters
 
-log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train_scale,y_log_train_scale), x0=np.random.uniform(0.5,1,size=4))
+iterations=[]
+loss_train=[]
+loss_test=[]
+
+iteration=0
+def loss(p):
+      global iteration,iterations,loss_train,loss_test
+      training_loss=f_mse_log(p[0],p[1],p[2],p[3],x_log_train_scale,y_log_train_scale)
+      test_loss=f_mse_log(p[0],p[1],p[2],p[3],x_log_test_scale,y_log_test_scale)
+      loss_train.append(training_loss)
+      loss_test.append(test_loss)
+      iterations.append(iteration)
+
+      iteration+=1
+      
+      return(training_loss)
+
+log_opt = minimize(loss, x0=np.random.uniform(0.5,1,size=4), tol=1e-12)
+
+
+### Ploting the Training and Testing Loss
+
+
+
+fig, ax = plt.subplots()
+ax.plot(iterations, loss_train, 'o', label="Training Loss")
+ax.plot(iterations, loss_test, 'o', label="Testing Loss")
+
+
+ax.legend()
+plt.ylabel("Loss", fontsize=18)
+plt.xlabel("iterations", fontsize=18)
+plt.title("Training and Testing Loss", fontsize=18)
+plt.show()
+
 
 y_pred_scale=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
 y_pred_inverse=(np.std(y_log_train))*y_pred_scale+np.mean(y_log_train).tolist()
@@ -234,10 +297,6 @@ ax.plot(xs, ys, 'r-',label="Model")
 ax.legend()
 plt.ylabel("weight(lb)", fontsize=18)
 plt.xlabel("age(years)", fontsize=18)
-# plt.text(40, 150, 'Train MSE: {}'.format(mse_train_log))
-# plt.text(40, 130, 'Train MAE: {}'.format(mae_train_log))
-# plt.text(40, 110, 'Test MSE: {}'.format(mse_test_log))
-# plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
 plt.title("Logistic regression (weight&age)", fontsize=18)
 plt.show()
 
@@ -276,7 +335,36 @@ x_log_train_scale= [ item for elem in x_log_train_scale for item in elem]
 
 # Use SciPy optimizer to train the parameters
 
-log_opt=minimize(lambda coef: f_mse_log(*coef,x_log_train_scale,y_log_train), x0=np.random.uniform(0.5,1,size=4))
+def loss(p):
+      global iteration,iterations,loss_train,loss_test
+      training_loss=f_mse_log(p[0],p[1],p[2],p[3],x_log_train_scale,y_log_train)
+      test_loss=f_mse_log(p[0],p[1],p[2],p[3],x_log_test_scale,y_log_test)
+      loss_train.append(training_loss)
+      loss_test.append(test_loss)
+      iterations.append(iteration)
+
+      iteration+=1
+      
+      return(training_loss)
+  
+log_opt = minimize(loss, x0=np.random.uniform(0.5,1,size=4), tol=1e-12)
+
+
+### Ploting the Training and Testing Loss
+
+
+
+fig, ax = plt.subplots()
+ax.plot(iterations, loss_train, 'o', label="Training Loss")
+ax.plot(iterations, loss_test, 'o', label="Testing Loss")
+
+
+ax.legend()
+plt.ylabel("Loss", fontsize=18)
+plt.xlabel("iterations", fontsize=18)
+plt.title("Training and Testing Loss", fontsize=18)
+plt.show()
+
 
 y_pred=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
 
@@ -308,9 +396,5 @@ ax.plot(xs, ys, 'r-',label="Model")
 ax.legend()
 plt.ylabel("weight(lb)", fontsize=18)
 plt.xlabel("age(years)", fontsize=18)
-# plt.text(40, 150, 'Train MSE: {}'.format(mse_train_log))
-# plt.text(40, 130, 'Train MAE: {}'.format(mae_train_log))
-# plt.text(40, 110, 'Test MSE: {}'.format(mse_test_log))
-# plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
 plt.title("Logistic regression (is_adult&weight)", fontsize=18)
 plt.show()
