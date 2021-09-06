@@ -133,23 +133,7 @@ def loss(p):
 
 linear_opt = minimize(loss, np.random.uniform(0.5,1,size=2), tol=1e-8)
 
-
-### Ploting the Training and Testing Loss
-
-
-
-fig, ax = plt.subplots()
-ax.plot(iterations, loss_train, 'o', label="Training Loss")
-ax.plot(iterations, loss_test, 'o', label="Testing Loss")
-
-
-ax.legend()
-plt.ylabel("Loss", fontsize=18)
-plt.xlabel("iterations", fontsize=18)
-plt.title("Training and Testing Loss", fontsize=18)
-plt.show()
-
-
+# Prediction
 
 y_pred_scale=linear_opt.x[1]+linear_opt.x[0]*x_linear_train_scale
 
@@ -184,7 +168,20 @@ plt.title("Linear regression (weight&age<18)", fontsize=18)
 plt.show()
 
 
+### Ploting the Training and Testing Loss
 
+
+
+fig, ax = plt.subplots()
+ax.plot(iterations, loss_train, 'o', label="Training Loss")
+ax.plot(iterations, loss_test, 'o', label="Testing Loss")
+
+
+ax.legend()
+plt.ylabel("Loss", fontsize=18)
+plt.xlabel("iterations", fontsize=18)
+plt.title("Training and Testing Loss", fontsize=18)
+plt.show()
 
 ###################################
 ###Logistic Regression(weight&age)
@@ -252,22 +249,9 @@ def loss(p):
 log_opt = minimize(loss, x0=np.random.uniform(0.5,1,size=4), tol=1e-12)
 
 
-### Ploting the Training and Testing Loss
 
 
-
-fig, ax = plt.subplots()
-ax.plot(iterations, loss_train, 'o', label="Training Loss")
-ax.plot(iterations, loss_test, 'o', label="Testing Loss")
-
-
-ax.legend()
-plt.ylabel("Loss", fontsize=18)
-plt.xlabel("iterations", fontsize=18)
-plt.title("Training and Testing Loss", fontsize=18)
-plt.show()
-
-
+# prediction
 y_pred_scale=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
 y_pred_inverse=(np.std(y_log_train))*y_pred_scale+np.mean(y_log_train).tolist()
 y_pred_inverse= [ item for elem in y_pred_inverse for item in elem]
@@ -300,7 +284,20 @@ plt.xlabel("age(years)", fontsize=18)
 plt.title("Logistic regression (weight&age)", fontsize=18)
 plt.show()
 
+### Ploting the Training and Testing Loss
 
+
+
+fig, ax = plt.subplots()
+ax.plot(iterations, loss_train, 'o', label="Training Loss")
+ax.plot(iterations, loss_test, 'o', label="Testing Loss")
+
+
+ax.legend()
+plt.ylabel("Loss", fontsize=18)
+plt.xlabel("iterations", fontsize=18)
+plt.title("Training and Testing Loss", fontsize=18)
+plt.show()
 
 ###################################
 ###Logistic Regression(is_adult&weight)
@@ -350,20 +347,6 @@ def loss(p):
 log_opt = minimize(loss, x0=np.random.uniform(0.5,1,size=4), tol=1e-12)
 
 
-### Ploting the Training and Testing Loss
-
-
-
-fig, ax = plt.subplots()
-ax.plot(iterations, loss_train, 'o', label="Training Loss")
-ax.plot(iterations, loss_test, 'o', label="Testing Loss")
-
-
-ax.legend()
-plt.ylabel("Loss", fontsize=18)
-plt.xlabel("iterations", fontsize=18)
-plt.title("Training and Testing Loss", fontsize=18)
-plt.show()
 
 
 y_pred=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
@@ -398,3 +381,20 @@ plt.ylabel("weight(lb)", fontsize=18)
 plt.xlabel("age(years)", fontsize=18)
 plt.title("Logistic regression (is_adult&weight)", fontsize=18)
 plt.show()
+
+
+### Ploting the Training and Testing Loss
+
+
+
+fig, ax = plt.subplots()
+ax.plot(iterations, loss_train, 'o', label="Training Loss")
+ax.plot(iterations, loss_test, 'o', label="Testing Loss")
+
+
+ax.legend()
+plt.ylabel("Loss", fontsize=18)
+plt.xlabel("iterations", fontsize=18)
+plt.title("Training and Testing Loss", fontsize=18)
+plt.show()
+
