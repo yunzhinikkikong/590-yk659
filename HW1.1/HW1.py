@@ -5,6 +5,7 @@ Created on Fri Sep  3 14:33:36 2021
 
 @author: Nikkikong
 """
+
 import json
 import matplotlib
 import matplotlib.pyplot as plt
@@ -32,7 +33,7 @@ class Data:
         self.weight = allvars["y"]
         self.age = allvars["x"]
 
-dataset=Data('/Users/nikkkikong/590-CODES/DATA/weight.json') 
+dataset=Data('weight.json') 
 # Convert to a pandas dataframe
 df = pd.DataFrame({'age':dataset.age,"is_adult":dataset.is_adult,"weight":dataset.weight})
 
@@ -89,16 +90,20 @@ y_linear_test= np.array(test_linear['weight'])
 
 scaler.fit(x_linear_train.reshape(-1, 1))
 x_linear_train_scale=(scaler.transform(x_linear_train.reshape(-1, 1)))
-
+# .tolist()
+# x_linear_train_scale= [ item for elem in x_linear_train_scale for item in elem]
 scaler.fit(x_linear_test.reshape(-1, 1))
 x_linear_test_scale=(scaler.transform(x_linear_test.reshape(-1, 1)))
-
+# .tolist()
+# x_linear_test_scale= [ item for elem in x_linear_test_scale for item in elem]
 scaler.fit(y_linear_test.reshape(-1, 1))
 y_linear_test_scale=(scaler.transform(y_linear_test.reshape(-1, 1)))
-
+# .tolist()
+# y_linear_test_scale= [ item for elem in y_linear_test_scale for item in elem]
 scaler.fit(y_linear_train.reshape(-1, 1))
 y_linear_train_scale=(scaler.transform(y_linear_train.reshape(-1, 1)))
-
+# .tolist()
+# y_linear_train_scale= [ item for elem in y_linear_train_scale for item in elem]
 ### Use SciPy optimizer to train the parameters
 
 # use mean square error (MSE) as the loss function
@@ -161,7 +166,7 @@ plt.show()
 
 
 # Dataset partition
-train_log, test_log = train_test_split(df, test_size=0.2,stratify='is_adult')
+train_log, test_log = train_test_split(df, test_size=0.2)
 
 ### Here we have age as x, weight as y
 x_log_train= np.array(train_log['age'])
@@ -242,9 +247,7 @@ plt.show()
 ###Logistic Regression(is_adult&weight)
 ###################################
 
-# We have done the partition
-
-
+# We have done the partition in the last model
 
 
 ### Here we have weight as x, is_adult as y
@@ -311,4 +314,3 @@ plt.xlabel("age(years)", fontsize=18)
 # plt.text(40, 90, 'Test MAE: {}'.format(mae_test_log))
 plt.title("Logistic regression (is_adult&weight)", fontsize=18)
 plt.show()
-
