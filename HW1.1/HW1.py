@@ -83,7 +83,7 @@ y_linear_train= np.array(train_linear['weight'])
 x_linear_test= np.array(test_linear['age'])
 y_linear_test= np.array(test_linear['weight'])
 
-# Normalize the data
+## Normalize the data
 
 
 
