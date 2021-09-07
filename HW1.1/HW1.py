@@ -83,7 +83,7 @@ y_linear_train= np.array(train_linear['weight'])
 x_linear_test= np.array(test_linear['age'])
 y_linear_test= np.array(test_linear['weight'])
 
-## Normalize the data
+# Normalize the data
 
 
 
@@ -182,6 +182,13 @@ plt.ylabel("Loss", fontsize=18)
 plt.xlabel("iterations", fontsize=18)
 plt.title("Training and Testing Loss", fontsize=18)
 plt.show()
+
+### Print MSE, MAE
+
+print('Train MSE (Linear regression): {}'.format(mse_train_linear)) 
+print('Train MAE (Linear regression): {}'.format(mae_train_linear))
+print('Test MSE (Linear regression): {}'.format(mse_test_linear))
+print('Test MAE (Linear regression): {}'.format(mae_test_linear))
 
 ###################################
 ###Logistic Regression(weight&age)
@@ -299,9 +306,17 @@ plt.xlabel("iterations", fontsize=18)
 plt.title("Training and Testing Loss", fontsize=18)
 plt.show()
 
-###################################
+### Print MSE, MAE
+
+print('Train MSE (Logistic regression (weight&age)): {}'.format(mse_train_log)) 
+print('Train MAE (Logistic regression (weight&age)): {}'.format(mae_train_log))
+print('Test MSE (Logistic regression (weight&age)): {}'.format(mse_test_log))
+print('Test MAE (Logistic regression (weight&age)): {}'.format(mae_test_log))
+
+
+#########################################
 ###Logistic Regression(is_adult&weight)
-###################################
+#########################################
 
 # We have done the partition in the last model
 
@@ -358,13 +373,11 @@ mse_train_log=np.mean((y_log_train - y_pred)**2)
 
 # Train MAE
 mae_train_log=np.mean(abs(y_log_train - y_pred))
-# # Test MSE
-# y_pred_scale_test=log_opt.x[0]/(1+np.exp(-(x_log_test_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
-# y_pred_inverse_test=(np.std(y_log_test))*y_pred_scale_test+np.mean(y_log_test).tolist()
-# y_pred_inverse_test=[ item for elem in y_pred_inverse_test for item in elem]
-# mse_test_log=np.mean((y_log_test - np.array(y_pred_inverse_test))**2)
-# # Test MAE
-# mae_test_log=np.mean(abs(y_log_test - np.array(y_pred_inverse_test)))
+# Test MSE
+y_pred_test=log_opt.x[0]/(1+np.exp(-(x_log_test_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
+mse_test_log=np.mean((y_log_test - y_pred_test)**2)
+# Test MAE
+mae_test_log=np.mean(abs(y_log_test - y_pred_test))
 
 # ### plot the result
 xs, ys = zip(*sorted(zip(x_log_train, y_pred)))
@@ -397,4 +410,11 @@ plt.ylabel("Loss", fontsize=18)
 plt.xlabel("iterations", fontsize=18)
 plt.title("Training and Testing Loss", fontsize=18)
 plt.show()
+
+### Print MSE, MAE
+
+print('Train MSE (Logistic regression (is_adult&weight)): {}'.format(mse_train_log)) 
+print('Train MAE (Logistic regression (is_adult&weight)): {}'.format(mae_train_log))
+print('Test MSE (Logistic regression (is_adult&weight)): {}'.format(mse_test_log))
+print('Test MAE (Logistic regression (is_adult&weight)): {}'.format(mae_test_log))
 
