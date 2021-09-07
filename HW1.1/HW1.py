@@ -258,7 +258,7 @@ log_opt = minimize(loss, x0=np.random.uniform(0.5,1,size=4), tol=1e-12)
 
 
 
-# prediction
+#make prediction
 y_pred_scale=log_opt.x[0]/(1+np.exp(-(x_log_train_scale-log_opt.x[2])/log_opt.x[1]))+log_opt.x[3]
 y_pred_inverse=(np.std(y_log_train))*y_pred_scale+np.mean(y_log_train).tolist()
 y_pred_inverse= [ item for elem in y_pred_inverse for item in elem]
