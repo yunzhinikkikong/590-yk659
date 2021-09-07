@@ -131,7 +131,7 @@ def loss(p):
       return(training_loss)
 
 
-linear_opt = minimize(loss, np.random.uniform(0.5,1,size=2), tol=1e-8)
+linear_opt = minimize(loss, np.random.uniform(0.5,1,size=2), tol=1e-12)
 
 # Prediction
 
