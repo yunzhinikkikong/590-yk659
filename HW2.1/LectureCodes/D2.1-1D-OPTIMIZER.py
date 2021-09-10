@@ -78,3 +78,6 @@ while(t<=tmax):
 
 
 plt.show(); #exit()
+
+# I HAVE WORKED THROUGH THIS EXAMPLE AND UNDERSTAND
+EVERYTHING THAT IT IS DOING
