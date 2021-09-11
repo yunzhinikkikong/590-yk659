@@ -72,7 +72,7 @@ def loss(p):
 	validation_loss=(np.mean((yp-yv)**2.0))  #MSE
 
 	#WRITE TO SCREEN
-	#if(iteration%25==0): print(iteration,training_loss,validation_loss) #,p)
+	if(iteration%25==0): print(iteration,training_loss,validation_loss) #,p)
 	
 	#RECORD FOR PLOTING
 	loss_train.append(training_loss); loss_val.append(validation_loss)
@@ -88,51 +88,61 @@ po=np.random.uniform(0.5,1.,size=NFIT)
 
 
 
-def optimizer(obj,tol=1e-12, method=‘batch’):
-    #PARAM
+#TRAIN MODEL USING OWN WRITE MINIMIZ 
+
+
+
+def optimizer(objective, LR=0.001,tol=10**-10):
+    NDIM=2
     dx=0.001							#STEP SIZE FOR FINITE DIFFERENCE
     LR=0.0001								#LEARNING RATE
     t=0 	 							#INITIAL ITERATION COUNTER
-    tmax=200000			#MAX NUMBER OF ITERATION
+    tmax=100000							#MAX NUMBER OF ITERATION
     tol=10**-10							#EXIT AFTER CHANGE IN F IS LESS THAN THIS 
     xi=po
-    NDIM=4
-    #print("INITAL GUESS: ",xi)
-
+    print("INITAL GUESS: ",xi)
+    
     while(t<=tmax):
-        t=t+1
-
-	#NUMERICALLY COMPUTE GRADIENT 
-        df_dx=np.zeros(NDIM)
-        for i in range(0,NDIM):
-            dX=np.zeros(NDIM);
-            dX[i]=dx; 
-            xm1=xi-dX; #print(xi,xm1,dX,dX.shape,xi.shape)
-            df_dx[i]=(loss(xi)-loss(xm1))/dx
-	#print(xi.shape,df_dx.shape)
-        xip1=xi-LR*df_dx #STEP 
-
-        if(t==tmax):
-            df=np.mean(np.absolute(loss(xip1)-loss(xi)))
-            print(t,"	",xi,"	","	",loss(xi)) #,df) 
-
-            if(df<tol):
-                print("STOPPING CRITERION MET (STOPPING TRAINING)")
-                break
-
-	#UPDATE FOR NEXT ITERATION OF LOOP
+    	t=t+1
+    
+    	#NUMERICALLY COMPUTE GRADIENT 
+    	df_dx=np.zeros(NDIM)
+    	for i in range(0,NDIM):
+    		dX=np.zeros(NDIM);
+    		dX[i]=dx; 
+    		xm1=xi-dX; #print(xi,xm1,dX,dX.shape,xi.shape)
+    		df_dx[i]=(f(xi)-f(xm1))/dx
+    	#print(xi.shape,df_dx.shape)
+    	xip1=xi-LR*df_dx #STEP 
+    
+    	if(t%10==0):
+    		df=np.mean(np.absolute(f(xip1)-f(xi)))
+    		print(t,"	",xi,"	","	",f(xi)) #,df) 
+    
+    		if(df<tol):
+    			print("STOPPING CRITERION MET (STOPPING TRAINING)")
+    			break
+    
+    	#UPDATE FOR NEXT ITERATION OF LOOP
         xi=xip1
-    return xi
+    
+   
+	
+    
+    
+    
+    
+res = optimizer(loss,tol=1e-15)  
+    
+    
+    
     
     
 
-    
-    
 
 
-
-res = optimizer(loss, po)
-popt=res
+res = optimizer(loss, po, method=OPT_ALGO, tol=1e-15)
+popt=res.x
 print("OPTIMAL PARAM:",popt)
 
 #PREDICTIONS
