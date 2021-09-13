@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep  3 14:33:36 2021
-
-@author: Nikkikong
-"""
 import json
 import matplotlib
 import matplotlib.pyplot as plt
@@ -183,6 +176,17 @@ plt.xlabel("iterations", fontsize=18)
 plt.title("Training and Testing Loss", fontsize=18)
 plt.show()
 
+#PARITY PLOTS
+
+fig, ax = plt.subplots()
+ax.plot(y_pred_inverse, y_linear_train, 'o', label='Training set')
+ax.plot(y_pred_inverse_test, y_linear_test, 'o', label='Validation set')
+
+plt.xlabel('y predicted', fontsize=18)
+plt.ylabel('y data', fontsize=18)
+plt.legend()
+plt.show()
+
 ### Print MSE, MAE
 
 print('Train MSE (Linear regression): {}'.format(mse_train_linear)) 
@@ -306,6 +310,17 @@ plt.xlabel("iterations", fontsize=18)
 plt.title("Training and Testing Loss", fontsize=18)
 plt.show()
 
+#PARITY PLOTS
+
+fig, ax = plt.subplots()
+ax.plot(y_pred_inverse, y_log_train, 'o', label='Training set')
+ax.plot(y_pred_inverse_test, y_log_test, 'o', label='Validation set')
+
+plt.xlabel('y predicted', fontsize=18)
+plt.ylabel('y data', fontsize=18)
+plt.legend()
+plt.show()
+
 ### Print MSE, MAE
 
 print('Train MSE (Logistic regression (weight&age)): {}'.format(mse_train_log)) 
@@ -411,10 +426,21 @@ plt.xlabel("iterations", fontsize=18)
 plt.title("Training and Testing Loss", fontsize=18)
 plt.show()
 
+
+#PARITY PLOTS
+
+fig, ax = plt.subplots()
+ax.plot(y_pred, y_log_train, 'o', label='Training set')
+ax.plot(y_pred_test, y_log_test, 'o', label='Validation set')
+
+plt.xlabel('y predicted', fontsize=18)
+plt.ylabel('y data', fontsize=18)
+plt.legend()
+plt.show()
+
 ### Print MSE, MAE
 
 print('Train MSE (Logistic regression (is_adult&weight)): {}'.format(mse_train_log)) 
 print('Train MAE (Logistic regression (is_adult&weight)): {}'.format(mae_train_log))
 print('Test MSE (Logistic regression (is_adult&weight)): {}'.format(mse_test_log))
 print('Test MAE (Logistic regression (is_adult&weight)): {}'.format(mae_test_log))
-
