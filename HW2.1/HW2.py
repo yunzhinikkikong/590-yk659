@@ -11,11 +11,11 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import json
-from   scipy.optimize import minimize
+
 
 #USER PARAMETERS
 IPLOT=True
-INPUT_FILE='/Users/nikkkikong/590-CODES/DATA/weight.json'
+INPUT_FILE='LectureCodes/weight.json'
 FILE_TYPE="json"
 DATA_KEYS=['x','is_adult','y']
 
@@ -73,15 +73,14 @@ def loss(p, xm,ym):
 
 
 ### initial value
-po=np.array([-3,3,-1,1])
+po=np.random.uniform(0.1,1.,size=NFIT)
 
 
-def optimizer(obj,method,LR=0.001,algo = "MOM",tol=10**-5):
+def optimizer(obj,method,LR=0.1,algo = "MOM",tol=10**-9):
     
     
     #PARAM
-    dx=0.01							#STEP SIZE FOR FINITE DIFFERENCE
-    LR=0.001								#LEARNING RATE
+    dx=0.001							#STEP SIZE FOR FINITE DIFFERENCE
     t=0 	 							#INITIAL ITERATION COUNTER
     tmax=5000		#MAX NUMBER OF ITERATION
 			#EXIT AFTER CHANGE IN F IS LESS THAN THIS 
