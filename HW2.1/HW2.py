@@ -76,7 +76,7 @@ def loss(p, xm,ym):
 po=np.random.uniform(0.1,1.,size=NFIT)
 
 
-def optimizer(obj,method,LR=0.1,algo = "MOM",tol=10**-9):
+def optimizer(obj,method,LR=0.1,algo = "MOM",tol=10**-8):
     
     
     #PARAM
@@ -140,8 +140,9 @@ def optimizer(obj,method,LR=0.1,algo = "MOM",tol=10**-9):
         
     return (xi,loss_train,loss_val)
     
+######## Choose different method and algo 
     
-res,loss_train,loss_val = optimizer(loss,"batch",algo="MOM")
+res,loss_train,loss_val = optimizer(loss,"mini batch",algo="MOM")
 iterations=np.arange(len(loss_train))+1
 popt=res
 print("OPTIMAL PARAM:",popt)
