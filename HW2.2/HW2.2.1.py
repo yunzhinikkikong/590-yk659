@@ -9,8 +9,8 @@ import json
 #--------------------------------
 
 
-# INPUT_FILE='/Users/nikkkikong/590-CODES/DATA/planar_x1_x2_y.json'
-INPUT_FILE='/Users/nikkkikong/590-CODES/DATA/planar_x1_x2_x3_y.json'
+# INPUT_FILE='planar_x1_x2_y.json'
+INPUT_FILE='planar_x1_x2_x3_y.json'
 FILE_TYPE="json"
 #x_KEYS=['x1','x2']
 x_KEYS=['x1','x2','x3']
@@ -45,17 +45,11 @@ Y=np.transpose(np.array(Y))
 #USER PARAMETERS
 IPLOT=True
 
-
 PARADIGM='batch'
-
 
 #UNCOMMENT FOR VARIOUS MODELS
 #model_type="logistic";
 model_type="linear";  
-
-
-
-
 
 
 #SAVE HISTORY FOR PLOTTING AT THE END
@@ -237,6 +231,7 @@ if(IPLOT):
 
 print("OPTIMAL PARAM:",p_final)
 # match  y=2.718*x1+3.14*x2+1
+# match y=2.718*x1+3.14*x2+1.4142*x3+1
 
 
 
