@@ -229,7 +229,7 @@ if(IPLOT):
 	plot_2()
 
 
-print("OPTIMAL PARAM:",p_final)
+# print("OPTIMAL PARAM:",p_final)
 # match  y=2.718*x1+3.14*x2+1
 # match y=2.718*x1+3.14*x2+1.4142*x3+1
 
