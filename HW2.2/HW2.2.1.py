@@ -1,11 +1,42 @@
-#--------------------------------
-# UNIVARIABLE REGRESSION EXAMPLE
-#--------------------------------
 
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import json
+
+#--------------------------------
+# Uncomment to choose from two .json file
+#--------------------------------
+
+
+# INPUT_FILE='/Users/nikkkikong/590-CODES/DATA/planar_x1_x2_y.json'
+INPUT_FILE='/Users/nikkkikong/590-CODES/DATA/planar_x1_x2_x3_y.json'
+FILE_TYPE="json"
+#x_KEYS=['x1','x2']
+x_KEYS=['x1','x2','x3']
+y_KEYS=['y']
+
+
+
+with open(INPUT_FILE) as f:
+	my_input = json.load(f)  #read into dictionary
+
+#CONVERT INPUT INTO ONE LARGE MATRIX 
+X=[];
+for key in my_input.keys():
+	if(key in x_KEYS):
+		X.append(my_input[key])
+
+X=np.transpose(np.array(X))
+NFIT=X.shape[1]+1
+
+Y=[];
+for key in my_input.keys():
+	if(key in y_KEYS):
+		Y.append(my_input[key])
+Y=np.transpose(np.array(Y))
+
+
 
 #------------------------
 #CODE PARAMETERS
@@ -17,51 +48,19 @@ IPLOT=True
 
 PARADIGM='batch'
 
-model_type="linear"; NFIT=2; X_KEYS=['x1']; Y_KEYS=['y']
+
+#UNCOMMENT FOR VARIOUS MODELS
+#model_type="logistic";
+model_type="linear";  
+
+
+
+
+
 
 #SAVE HISTORY FOR PLOTTING AT THE END
 epoch=1; epochs=[]; loss_train=[];  loss_val=[]
 
-#------------------------
-#GENERATE DATA
-#------------------------
-N=200
-X1=[]; Y1=[]
-for x1 in np.linspace(-5,5,N):
-	noise=10*5*np.random.uniform(-1,1,size=1)[0]
-	y=2.718*10*x1+100.0+noise
-	X1.append(x1); Y1.append(y)
-input1={}; input1['x1']=X1; input1['y']=Y1
-# X is a list with input sample (dim=number of samples)
-
-#------------------------
-#CONVERT TO MATRICES AND NORMALIZE
-#------------------------
-
-#CONVERT DICTIONARY INPUT AND OUTPUT MATRICES #SIMILAR TO PANDAS DF   
-X=[]; Y=[]
-for key in input1.keys():
-	if(key in X_KEYS): X.append(input1[key])
-	if(key in Y_KEYS): Y.append(input1[key])
-
-
-
-print(type(X1))
-print(len(X1))
-exit()
-
-#MAKE ROWS=SAMPLE DIMENSION (TRANSPOSE)
-X=np.transpose(np.array(X))
-Y=np.transpose(np.array(Y))
-print('--------INPUT INFO-----------')
-print("X shape:",X.shape); print("Y shape:",Y.shape,'\n')
-
-#TAKE MEAN AND STD DOWN COLUMNS (I.E DOWN SAMPLE DIMENSION)
-XMEAN=np.mean(X,axis=0); XSTD=np.std(X,axis=0) 
-YMEAN=np.mean(Y,axis=0); YSTD=np.std(Y,axis=0) 
-
-#NORMALIZE 
-X=(X-XMEAN)/XSTD;  Y=(Y-YMEAN)/YSTD  
 
 #------------------------
 #PARTITION DATA
@@ -88,9 +87,14 @@ print("test_idx shape:" ,test_idx.shape)
 #------------------------
 #MODEL
 #------------------------
+
+# SIGMOID
+def S(x): return 1.0/(1.0+np.exp(-x))
+
 def model(x,p):
-	if(model_type=="linear"):   return  p[0]*x+p[1]  
-	if(model_type=="logistic"): return  p[0]+p[1]*(1.0/(1.0+np.exp(-(x-p[2])/(p[3]+0.0001))))
+    linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
+    if(model_type=="linear"):   return  linear 
+    if(model_type=="logistic"): return  S(linear)
 
 #FUNCTION TO MAKE VARIOUS PREDICTIONS FOR GIVEN PARAMETERIZATION
 def predict(p):
@@ -228,33 +232,16 @@ if(IPLOT):
 
 	plot_0()
 	plot_1()
-
-	#UNNORMALIZE RELEVANT ARRAYS
-	X=XSTD*X+XMEAN 
-	Y=YSTD*Y+YMEAN 
-	YPRED_T=YSTD*YPRED_T+YMEAN 
-	YPRED_V=YSTD*YPRED_V+YMEAN 
-	YPRED_TEST=YSTD*YPRED_TEST+YMEAN 
-
-	plot_1()
 	plot_2()
 
 
+print("OPTIMAL PARAM:",p_final)
+# match  y=2.718*x1+3.14*x2+1
 
-# #------------------------
-# #DOUBLE CHECK PART-1 OF HW2.1
-# #------------------------
 
-# x=np.array([[3],[1],[4]])
-# y=np.array([[2,5,1]])
 
-# A=np.array([[4,5,2],[3,1,5],[6,4,3]])
-# B=np.array([[3,5],[5,2],[1,4]])
-# print(x.shape,y.shape,A.shape,B.shape)
-# print(np.matmul(x.T,x))
-# print(np.matmul(y,x))
-# print(np.matmul(x,y))
-# print(np.matmul(A,x))
-# print(np.matmul(A,B))
-# print(B.reshape(6,1))
-# print(B.reshape(1,6))
+
+
+
+
+
