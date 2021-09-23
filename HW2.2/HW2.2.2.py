@@ -110,6 +110,9 @@ print("train_idx shape:",train_idx.shape)
 print("val_idx shape:"  ,val_idx.shape)
 print("test_idx shape:" ,test_idx.shape)
 
+
+# print(X[train_idx].shape)
+# exit()
 #------------------------
 #MODEL
 #------------------------
@@ -236,12 +239,12 @@ def plot_0():
 	plt.show()
 
 #FUNCTION PLOTS
-def plot_1(xla='x',yla='y'):
+def plot_1(xla='x',yla='MPG',i=0):
 	fig, ax = plt.subplots()
-	ax.plot(X[train_idx]    , Y[train_idx],'o', label='Training') 
-	ax.plot(X[val_idx]      , Y[val_idx],'x', label='Validation') 
-	ax.plot(X[test_idx]     , Y[test_idx],'*', label='Test') 
-	ax.plot(X[train_idx]    , YPRED_T,'.', label='Model') 
+	ax.plot(X[train_idx][:,i]    , Y[train_idx],'o', label='Training') 
+	ax.plot(X[val_idx][:,i]      , Y[val_idx],'x', label='Validation') 
+	ax.plot(X[test_idx][:,i]     , Y[test_idx],'*', label='Test') 
+	ax.plot(X[train_idx][:,i]    , YPRED_T,'.', label='Model') 
 	plt.xlabel(xla, fontsize=18);	plt.ylabel(yla, fontsize=18); 	plt.legend()
 	plt.show()
 
@@ -254,23 +257,21 @@ def plot_2(xla='y_data',yla='y_predict'):
 	plt.xlabel(xla, fontsize=18);	plt.ylabel(yla, fontsize=18); 	plt.legend()
 	plt.show()
 	
-if(IPLOT):
-
-	plot_0()
-	plot_1()
-
-	#UNNORMALIZE RELEVANT ARRAYS
-	X=XSTD*X+XMEAN 
-	Y=YSTD*Y+YMEAN 
-	YPRED_T=YSTD*YPRED_T+YMEAN 
-	YPRED_V=YSTD*YPRED_V+YMEAN 
-	YPRED_TEST=YSTD*YPRED_TEST+YMEAN 
-
-	plot_1()
-	plot_2()
-
-
-
+if (IPLOT):
+    
+    plot_0()
+        
+    #UNNORMALIZE RELEVANT ARRAYS
+    X=XSTD*X+XMEAN 
+        
+    Y=YSTD*Y+YMEAN; YPRED_T=YSTD*YPRED_T+YMEAN;YPRED_V=YSTD*YPRED_V+YMEAN ;YPRED_TEST=YSTD*YPRED_TEST+YMEAN ;  
+    
+    plot_1('Cylinders',i=0)	
+    plot_1('Displacement',i=1)
+    plot_1('Horsepower',i=2)
+    plot_1('Weight',i=3)
+    plot_1('Acceleration',i=4)
+    plot_2()
 
 
 
