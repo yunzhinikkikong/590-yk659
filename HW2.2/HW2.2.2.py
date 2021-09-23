@@ -20,9 +20,9 @@ df = pd.read_csv(url,names=column_names,
                  na_values='?',comment='\t',
                  sep=' ',skipinitialspace=True)
 
-# import Seaborn_visualizer as SBV
-# SBV.get_pd_info(df)
-# SBV.pd_general_plots(df,HUE="Origin")
+import Seaborn_visualizer as SBV
+SBV.get_pd_info(df)
+SBV.pd_general_plots(df,HUE="Origin")
 
 
 ###############################
@@ -30,11 +30,42 @@ df = pd.read_csv(url,names=column_names,
 # Y= MPG
 ###############################
 
-Y=df["MPG"]
-Y=np.transpose(np.array(Y))
-X=df[["Cylinders", "Displacement", "Horsepower", "Weight", "Acceleration"]]
-X=np.transpose(np.array(X))
+x_col=[1,2,3,4,5]
+y_col=[0]
+X_KEYS =SBV.index_to_keys(df, x_col)
+Y_KEYS = SBV.index_to_keys(df, y_col)
+
+#CONVERT SELECT DF to NP
+
+x = df[X_KEYS].to_numpy()
+y = df[Y_KEYS].to_numpy()
+
+xtemp=[];ytemp=[];
+for i in range(0,len(x)):
+    if(not 'nan' in str(x[i])):
+        xtemp.append(x[i])
+        ytemp.append(y[i])
+
+X=np.array(xtemp)
+Y=np.array(ytemp)
 NFIT=X.shape[1]+1
+
+#TAKE MEAN AND STD DOWN COLUMNS (I.E DOWN SAMPLE DIMENSION)
+XMEAN=np.mean(X,axis=0); XSTD=np.std(X,axis=0) 
+YMEAN=np.mean(Y,axis=0); YSTD=np.std(Y,axis=0) 
+
+# if(I_NORMALIZE):
+#     X=(X-XMEAN)/XSTD; Y=(Y-YMEAN)/YSTD
+#     I_UNNORMALIZE=True
+# else:
+#     I_UNNORMALIZE=False
+    
+    
+
+#NORMALIZE 
+X=(X-XMEAN)/XSTD;  Y=(Y-YMEAN)/YSTD  
+
+
 
 
 
@@ -227,12 +258,16 @@ if(IPLOT):
 
 	plot_0()
 	plot_1()
+
+	#UNNORMALIZE RELEVANT ARRAYS
+	X=XSTD*X+XMEAN 
+	Y=YSTD*Y+YMEAN 
+	YPRED_T=YSTD*YPRED_T+YMEAN 
+	YPRED_V=YSTD*YPRED_V+YMEAN 
+	YPRED_TEST=YSTD*YPRED_TEST+YMEAN 
+
+	plot_1()
 	plot_2()
-
-
-# print("OPTIMAL PARAM:",p_final)
-# match  y=2.718*x1+3.14*x2+1
-# match y=2.718*x1+3.14*x2+1.4142*x3+1
 
 
 
