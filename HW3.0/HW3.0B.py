@@ -111,6 +111,118 @@ print("val_idx shape:"  ,val_idx.shape)
 print("test_idx shape:" ,test_idx.shape)
 
 
+
+
+
+##########
+############
+#Lecture Codes
+#############
+##############
+
+
+IPLOT=True
+I_NORMALIZE=True
+model_type="linear"
+model_type="ANN"
+
+# Optimization parameter
+PARADIGM = "minibatch"
+algo= "MOM"
+LR=0.1
+dx=0.0001
+max_iter=5000
+tol=10**-10
+max_rand_wb=1.0
+GAMMA_L1 = 0.0
+GAMMA_L2 = 0.0001
+alpha=0.25
+# ANN PARAM
+
+layers= [-1,5,5,5,1]
+activation = "TANH"
+
+
+
+# SIGMOID
+def S(x): return 1.0/(1.0+np.exp(-x))
+
+def model(x,p):
+    linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
+    if(model_type=="linear"):   return  linear 
+    if(model_type=="logistic"): return  S(linear)
+
+#FUNCTION TO MAKE VARIOUS PREDICTIONS FOR GIVEN PARAMETERIZATION
+def predict(p):
+	global YPRED_T,YPRED_V,YPRED_TEST,MSE_T,MSE_V
+	YPRED_T=model(X[train_idx],p)
+	YPRED_V=model(X[val_idx],p)
+	YPRED_TEST=model(X[test_idx],p)
+	MSE_T=np.mean((YPRED_T-Y[train_idx])**2.0)
+	MSE_V=np.mean((YPRED_V-Y[val_idx])**2.0)
+
+
+
+
+
+
+
+#TAKES A LONG VECTOR W OF WEIGHTS AND BIAS AND RETURNS 
+#WEIGHT AND BIAS SUBMATRICES
+def extract_submatrices(WB):
+	submatrices=[]; K=0
+	for i in range(0,len(layers)-1):
+		#FORM RELEVANT SUB MATRIX FOR LAYER-N
+		Nrow=layers[i+1]; Ncol=layers[i] #+1
+		w=np.array(WB[K:K+Nrow*Ncol].reshape(Ncol,Nrow).T) #unpack/ W 
+		K=K+Nrow*Ncol; #print i,k0,K
+		Nrow=layers[i+1]; Ncol=1; #+1
+		b=np.transpose(np.array([WB[K:K+Nrow*Ncol]])) #unpack/ W 
+		K=K+Nrow*Ncol; #print i,k0,K
+		submatrices.append(w); submatrices.append(b)
+		print(w.shape,b.shape)
+	return submatrices
+
+
+
+
+#CALCULATE NUMBER OF FITTING PARAMETERS FOR SPECIFIED NN 
+NFIT=0; 
+for i in range(1,len(layers)):
+	NFIT=NFIT+layers[i-1]*layers[i]+layers[i]
+
+print("NFIT			:	",NFIT)
+
+
+
+#RANDOM INITIAL GUESS
+po=np.random.uniform(-max_rand_wb,max_rand_wb,size=NFIT)
+
+print(po)
+extract_submatrices(po)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # print(X[train_idx].shape)
 # exit()
 #------------------------
@@ -272,7 +384,6 @@ if (IPLOT):
     plot_1('Weight',i=3)
     plot_1('Acceleration',i=4)
     plot_2()
-
 
 
 
