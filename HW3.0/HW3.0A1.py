@@ -25,9 +25,9 @@ from keras import layers
 from keras import regularizers
 def build_model():
     model = models.Sequential()
-    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.01),activation='tanh',
+    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='tanh',
     input_shape=(train_data.shape[1],)))
-    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.01),activation='tanh'))
+    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='tanh'))
     model.add(layers.Dense(1))
     model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
     return model
@@ -64,6 +64,8 @@ print(f'mean all scores : {np.mean(all_scores)}')
 
 num_epochs = 500
 all_mae_histories = []
+train_loss_histories = []
+val_loss_histories = []
 for i in range(k):
     print('processing fold #', i)
     val_data = train_data[i * num_val_samples: (i + 1) * num_val_samples]
@@ -79,12 +81,17 @@ for i in range(k):
     history = model.fit(partial_train_data, partial_train_targets,
               validation_data=(val_data, val_targets),epochs=num_epochs, batch_size=1, verbose=0)
     mae_history = history.history['val_mae']
+    loss_train = history.history['loss']
+    loss_val = history.history['val_loss']
     all_mae_histories.append(mae_history)
-
+    train_loss_histories.append(loss_train)
+    val_loss_histories.append(loss_val)
 
 
 average_mae_history = [np.mean([x[i] for x in all_mae_histories]) for i in range(num_epochs)]
 
+train_loss_history = [np.mean([x[i] for x in train_loss_histories]) for i in range(num_epochs)]
+val_loss_history = [np.mean([x[i] for x in val_loss_histories]) for i in range(num_epochs)]
 
 import matplotlib.pyplot as plt
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history)
@@ -113,3 +120,13 @@ epochs=60, batch_size=16, verbose=0)
 test_mse_score, test_mae_score = model.evaluate(test_data, test_targets)
 
 test_mae_score
+
+
+
+fig, ax = plt.subplots()
+ax.plot(range(1, len(train_loss_history) + 1), train_loss_history, 'o', label='Training loss')
+ax.plot(range(1, len(val_loss_history) + 1), val_loss_history, 'o', label='Validation loss')
+plt.xlabel('epochs', fontsize=18)
+plt.ylabel('loss', fontsize=18)
+plt.legend()
+plt.show()
