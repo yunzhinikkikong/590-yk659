@@ -25,9 +25,9 @@ from keras import layers
 from keras import regularizers
 def build_model():
     model = models.Sequential()
-    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='relu',
+    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.01),activation='tanh',
     input_shape=(train_data.shape[1],)))
-    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='relu'))
+    model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.01),activation='tanh'))
     model.add(layers.Dense(1))
     model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
     return model
@@ -109,7 +109,7 @@ plt.show()
 
 model = build_model()
 model.fit(train_data, train_targets,
-epochs=80, batch_size=16, verbose=0)
+epochs=60, batch_size=16, verbose=0)
 test_mse_score, test_mae_score = model.evaluate(test_data, test_targets)
 
 test_mae_score
