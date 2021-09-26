@@ -144,28 +144,6 @@ activations = "TANH"
 
 
 
-# SIGMOID
-def S(x): return 1.0/(1.0+np.exp(-x))
-
-# Tanh
-def T(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
-
-def model(x,p):
-    linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
-    if(model_type=="linear"):   return  linear 
-    if(model_type=="logistic"): return  S(linear)
-
-#FUNCTION TO MAKE VARIOUS PREDICTIONS FOR GIVEN PARAMETERIZATION
-def predict(p):
-	global YPRED_T,YPRED_V,YPRED_TEST,MSE_T,MSE_V
-	YPRED_T=model(X[train_idx],p)
-	YPRED_V=model(X[val_idx],p)
-	YPRED_TEST=model(X[test_idx],p)
-	MSE_T=np.mean((YPRED_T-Y[train_idx])**2.0)
-	MSE_V=np.mean((YPRED_V-Y[val_idx])**2.0)
-
-
-
 #TAKES A LONG VECTOR W OF WEIGHTS AND BIAS AND RETURNS 
 #WEIGHT AND BIAS SUBMATRICES
 def extract_submatrices(WB):
@@ -182,9 +160,6 @@ def extract_submatrices(WB):
 		print(w.shape,b.shape)
 	return submatrices
 
-
-
-
 #CALCULATE NUMBER OF FITTING PARAMETERS FOR SPECIFIED NN 
 NFIT=0; 
 for i in range(1,len(layers)):
@@ -194,21 +169,20 @@ print("NFIT			:	",NFIT)
 
 
 
-#RANDOM INITIAL GUESS
-po=np.random.uniform(-max_rand_wb,max_rand_wb,size=NFIT)
-
-print(po)
-extract_submatrices(po)
-
-
-# print(X[train_idx].shape)
-# exit()
 #------------------------
 #MODEL
 #------------------------
 
+### definne activation function
+
 # SIGMOID
 def S(x): return 1.0/(1.0+np.exp(-x))
+
+# Tanh
+def T(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
+
+
+# suitable for both linear, logistic and ANN models
 
 def model(x,p):
     linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
@@ -244,16 +218,21 @@ def predict(p):
 #------------------------
 ### adding L1 and L2 regularization with the weight parameter lambda
 
+## When GAMMA_L2=0.0,GAMMA_L1 equal to some value ====> L1 regularization
+## When GAMMA_L1=0.0,GAMMA_L2 equal to some value ====> L2 regularization
+
 def loss(p,index_2_use,reg="None",GAMMA_L1=0.0,GAMMA_L2=0.001):
     errors=model(X[index_2_use],p)-Y[index_2_use]#VECTOR OF ERRORS
-    training_loss=np.sum(errors**2.0)+GAMMA_L1*np.sum(np.absolute(p))+GAMMA_L2*np.sum(np.absolute(p))	#Cost function
+    #Cost function
+    training_loss=np.sum(errors**2.0)+GAMMA_L1*np.sum(np.absolute(p))+GAMMA_L2*np.sum(p**2)
+    return training_loss
     # if(reg == "None"):   
     #     training_loss=np.sum(errors**2.0)	#Cost function
     # elif(reg == "L1"):       
     #     training_loss=np.sum(errors**2.0)+lam*np.sum(np.absolute(p))
     # elif(reg== "L2"):        
     #     training_loss=np.sum(errors**2.0)+ lam * np.sum(p**2)
-    return training_loss
+    
 
 #------------------------
 #MINIMIZER FUNCTION
@@ -329,8 +308,11 @@ def minimizer(f,xi, algo='GD', LR=0.01):
 #FIT MODEL
 #------------------------
 
-#RANDOM INITIAL GUESS FOR FITTING PARAMETERS
-po=np.random.uniform(2,1.,size=NFIT)
+#RANDOM INITIAL GUESS
+po=np.random.uniform(-max_rand_wb,max_rand_wb,size=NFIT)
+
+# print(po)
+# extract_submatrices(po)
 
 #TRAIN MODEL USING SCIPY MINIMIZ 
 p_final=minimizer(loss,po)		
