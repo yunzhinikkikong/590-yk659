@@ -221,7 +221,7 @@ def model(x,p):
             weight = np.transpose(p_layer[2*i])
             bias = np.transpose(p_layer[2*i+1])
             result = np.matmul(result,weight)+bias
-            if activations[i]=="linear":
+            if activations[i] == "linear":
               result = result
             elif activations[i] == "sigmoid":
               result = S(result)
