@@ -139,7 +139,7 @@ GAMMA_L2 = 0.0001
 alpha=0.25
 # ANN PARAM
 
-layers= [-1,5,5,5,1]
+layers= [5,5,5,1]
 activations = "TANH"
 
 
@@ -147,7 +147,8 @@ activations = "TANH"
 # SIGMOID
 def S(x): return 1.0/(1.0+np.exp(-x))
 
-def tanh(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
+# Tanh
+def T(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
 
 def model(x,p):
     linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
@@ -162,10 +163,6 @@ def predict(p):
 	YPRED_TEST=model(X[test_idx],p)
 	MSE_T=np.mean((YPRED_T-Y[train_idx])**2.0)
 	MSE_V=np.mean((YPRED_V-Y[val_idx])**2.0)
-
-
-
-
 
 
 
@@ -204,27 +201,6 @@ print(po)
 extract_submatrices(po)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # print(X[train_idx].shape)
 # exit()
 #------------------------
@@ -244,31 +220,14 @@ def model(x,p):
         for i in range(len(layers)-1):
             weight = np.transpose(p_layer[2*i])
             bias = np.transpose(p_layer[2*i+1])
-            result = np.matmul(x,weight)+bias
+            result = np.matmul(result,weight)+bias
             if activations[i]=="linear":
               result = result
             elif activations[i] == "sigmoid":
               result = S(result)
-    return(result)    
-    
-
-
-
-
-def model(x,p):
-    ## p is intial weight
-    p_extract = extract_submatrices(p)
-    #result = p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
-    for i in range(len(layers)-1):
-        weight = np.transpose(p_extract[i])
-        bias = np.transpose(p_extract[i+1])
-        result = np.matmul(x,weight)+bias
-        if activations[i]=="linear":
-            result = result
-            
-        elif activations[i] == "sigmoid":
-            result = S(result)
-    return(result)    
+            elif activations[i] == "tanh":
+              result = T(result)
+        return(result)    
     
 
 #FUNCTION TO MAKE VARIOUS PREDICTIONS FOR GIVEN PARAMETERIZATION
