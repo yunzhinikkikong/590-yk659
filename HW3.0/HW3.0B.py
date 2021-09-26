@@ -140,12 +140,14 @@ alpha=0.25
 # ANN PARAM
 
 layers= [-1,5,5,5,1]
-activation = "TANH"
+activations = "TANH"
 
 
 
 # SIGMOID
 def S(x): return 1.0/(1.0+np.exp(-x))
+
+def tanh(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
 
 def model(x,p):
     linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
@@ -236,6 +238,38 @@ def model(x,p):
     linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
     if(model_type=="linear"):   return  linear 
     if(model_type=="logistic"): return  S(linear)
+    if(model_type=="ANN"):
+        p_layer = extract_submatrices(p)
+        result = x
+        for i in range(len(layers)-1):
+            weight = np.transpose(p_layer[2*i])
+            bias = np.transpose(p_layer[2*i+1])
+            result = np.matmul(x,weight)+bias
+            if activations[i]=="linear":
+              result = result
+            elif activations[i] == "sigmoid":
+              result = S(result)
+    return(result)    
+    
+
+
+
+
+def model(x,p):
+    ## p is intial weight
+    p_extract = extract_submatrices(p)
+    #result = p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
+    for i in range(len(layers)-1):
+        weight = np.transpose(p_extract[i])
+        bias = np.transpose(p_extract[i+1])
+        result = np.matmul(x,weight)+bias
+        if activations[i]=="linear":
+            result = result
+            
+        elif activations[i] == "sigmoid":
+            result = S(result)
+    return(result)    
+    
 
 #FUNCTION TO MAKE VARIOUS PREDICTIONS FOR GIVEN PARAMETERIZATION
 def predict(p):
@@ -249,10 +283,18 @@ def predict(p):
 #------------------------
 #LOSS FUNCTION
 #------------------------
-def loss(p,index_2_use):
-	errors=model(X[index_2_use],p)-Y[index_2_use]  #VECTOR OF ERRORS
-	training_loss=np.mean(errors**2.0)				#MSE
-	return training_loss
+### adding L1 and L2 regularization with the weight parameter lambda
+
+def loss(p,index_2_use,reg="None",GAMMA_L1=0.0,GAMMA_L2=0.001):
+    errors=model(X[index_2_use],p)-Y[index_2_use]#VECTOR OF ERRORS
+    training_loss=np.sum(errors**2.0)+GAMMA_L1*np.sum(np.absolute(p))+GAMMA_L2*np.sum(np.absolute(p))	#Cost function
+    # if(reg == "None"):   
+    #     training_loss=np.sum(errors**2.0)	#Cost function
+    # elif(reg == "L1"):       
+    #     training_loss=np.sum(errors**2.0)+lam*np.sum(np.absolute(p))
+    # elif(reg== "L2"):        
+    #     training_loss=np.sum(errors**2.0)+ lam * np.sum(p**2)
+    return training_loss
 
 #------------------------
 #MINIMIZER FUNCTION

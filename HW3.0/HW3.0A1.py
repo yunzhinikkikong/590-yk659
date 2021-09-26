@@ -34,7 +34,7 @@ def build_model():
 
 # Validating the approach using K-fold validation
 
-k = 4
+k = 5
 num_val_samples = len(train_data) // k
 num_epochs = 100
 all_scores = []
@@ -116,8 +116,10 @@ plt.show()
 
 model = build_model()
 model.fit(train_data, train_targets,
-epochs=60, batch_size=16, verbose=0)
+epochs=60, batch_size=12, verbose=0)
 test_mse_score, test_mae_score = model.evaluate(test_data, test_targets)
+
+model.predict(test_data)
 
 test_mae_score
 
