@@ -27,11 +27,16 @@ x_test = vectorize_sequences(test_data)
 y_train = np.asarray(train_labels).astype('float32')
 y_test = np.asarray(test_labels).astype('float32')
 
-### Build the model, use a very small network with two hidden layers, each with 64 units
+
 
 
 ############################################################
 ############################################################
+
+### Build the model
+
+### Binary classification: sigmoid output, 
+# Loss: binary_crossentropy
 
 # Here I explore different combinations of hyperparameter, 
 # and leave the best fit version in the below functions
@@ -64,7 +69,7 @@ partial_y_train = y_train[10000:]
 
 model.compile(optimizer='rmsprop',
               loss='binary_crossentropy',
-              metrics=['acc'])
+              metrics=['acc','AUC'])
 
 history = model.fit(partial_x_train,partial_y_train,epochs=20,
               batch_size=512,validation_data=(x_val, y_val))
@@ -79,6 +84,7 @@ history_dict = history.history
 
 # Model evaluation by results and plots
 # Plot for the training and validating loss
+# Plot for the training and validating AUC
 # Plot for the training and validating accuracy
 # fit the test data and evaluate the loss and accuracy
 
@@ -94,8 +100,8 @@ acc = history.history['acc']
 val_acc = history.history['val_acc']
 epochs = range(1, len(acc) + 1)
 
-
-
+auc = history.history['auc']
+val_auc = history.history['val_auc']
 # Plot for the training and validating loss
 
 plt.plot(epochs, loss_values, 'bo', label='Training loss')
@@ -105,6 +111,21 @@ plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 plt.show()
+
+
+
+# Plot for the training and validating AUC
+
+plt.clf()
+plt.plot(epochs, auc, 'b', label='Training AUC')
+plt.plot(epochs, val_auc, 'r', label='Validation AUC')
+plt.title('Training and validation AUC')
+plt.xlabel('Epochs')
+plt.ylabel('AUC')
+plt.legend()
+plt.show()
+
+
 
 
 # Plot for the training and validating accuracy
@@ -119,6 +140,10 @@ plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 plt.show()
+
+
+
+
 
 
 
