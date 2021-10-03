@@ -103,7 +103,7 @@ NFIT=X.shape[1]+1  		#plus one for the bias term
 def S(x): return 1.0/(1.0+np.exp(-x))
 
 # Tanh
-def T(x): return 2(S(2*x)-0.5)
+def T(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
 
 print('--------INPUT INFO-----------')
 print("X shape:",X.shape); print("Y shape:",Y.shape,'\n')
