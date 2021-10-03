@@ -158,4 +158,4 @@ plt.show()
 
 model.fit(x_train, one_hot_train_labels, epochs=20, batch_size=512)
 results = model.evaluate(x_test, one_hot_test_labels)
-print("Loss and Accuracy:",results)
+print("Loss, Accuracy and AUC:",results)

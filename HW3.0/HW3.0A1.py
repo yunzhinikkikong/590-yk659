@@ -205,12 +205,11 @@ plt.show()
 model = build_model()
 model.fit(train_data, train_targets,
 epochs=60, batch_size=12, verbose=0)
-test_mse_score, test_mae_score = model.evaluate(test_data, test_targets)
-
+results = model.evaluate(test_data, test_targets)
+print("MSE,MAE:",results)
 # store the predicted value
 # model.predict(test_data)
 
-test_mae_score
 
 
 

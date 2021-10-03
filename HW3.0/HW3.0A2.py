@@ -40,10 +40,9 @@ y_test = np.asarray(test_labels).astype('float32')
 
 # Here I explore different combinations of hyperparameter, 
 # and leave the best fit version in the below functions
-# I tried three 'relu' activation layers with different input units
-# and the out layer is sigmoid activation function that output range from 0 to 1
-# Actuallt, the textbook gives the best parameter combination that I have tried
-# I tried different activation function and layers, but the results are not as good as initial
+# I tried three 'softsign' activation function with three layers
+# and the out layer is sigmoid activation function that output range from 0 to 1 
+# since it is binary classification problem
 
 ############################################################
 ############################################################
@@ -52,9 +51,9 @@ from keras import models
 from keras import layers
 
 model = models.Sequential()
-model.add(layers.Dense(32,activation='relu', input_shape=(10000,)))
-model.add(layers.Dense(16,activation='relu'))
-model.add(layers.Dense(16,activation='relu'))
+model.add(layers.Dense(16,activation='softsign', input_shape=(10000,)))
+model.add(layers.Dense(16,activation='softsign'))
+model.add(layers.Dense(16,activation='softsign'))
 model.add(layers.Dense(1, activation='sigmoid'))
 
 # subseting the trainin dataset for a validation set
@@ -144,7 +143,7 @@ plt.show()
 # model evaluation
 model.fit(x_train, y_train, epochs=4, batch_size=512)
 results = model.evaluate(x_test, y_test)
-print("Loss and Accuracy:",results)
+print("Loss, Accuracy and AUC:",results)
 
 
 
