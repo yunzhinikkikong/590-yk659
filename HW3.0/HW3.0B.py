@@ -174,7 +174,8 @@ if(model_type=="ANN"):
 	print("NFIT		:	",NFIT)
 
 # Here I change the parameter for activations, so it can input activation functions for each layers
-activations	=	["TANH"	,"TANH"	,"TANH"	]
+if(activation=="TANH"):
+    activations	=	["TANH"	,"TANH"	,"TANH"	]
 
 def NN_eval(x,submatrices):
  
@@ -183,6 +184,8 @@ def NN_eval(x,submatrices):
             weight = np.transpose(submatrices[2*i])
             bias = np.transpose(submatrices[2*i+1])
             result = np.matmul(result,weight)+bias
+            ## it is not nessary for this assighment
+            ## I am keep it for cases that activation functions for each layers are different
             if activations[i] == "linear":
               result = result
             elif activations[i] == "sigmoid":
@@ -226,6 +229,7 @@ def loss(p,index_2_use):
 	if(GAMMA_L2!=0.0):
 		out=out+GAMMA_L2*np.sum(p**2.0)
 	return out
+
 #------------------------
 #MINIMIZER FUNCTION
 #------------------------
