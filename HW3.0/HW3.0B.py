@@ -6,87 +6,117 @@ Created on Sun Sep 21 13:03:42 2021
 @author: Nikkikong
 """ 
 
+
+
+#--------------------------------
+# UNIVARIABLE REGRESSION EXAMPLE
+#--------------------------------
+
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import json
 
-
-url = "http://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data"
-column_names = ['MPG','Cylinders','Displacement','Horsepower','Weight',
-                'Acceleration','Model Year','Origin']
-import pandas as pd
-df = pd.read_csv(url,names=column_names,
-                 na_values='?',comment='\t',
-                 sep=' ',skipinitialspace=True)
-
-import Seaborn_visualizer as SBV
-SBV.get_pd_info(df)
-SBV.pd_general_plots(df,HUE="Origin")
-
-
-###############################
-# X=['Cylinders', 'Displacement', 'Horsepower', 'Weight', 'Acceleration']
-# Y= MPG
-###############################
-
-x_col=[1,2,3,4,5]
-y_col=[0]
-X_KEYS =SBV.index_to_keys(df, x_col)
-Y_KEYS = SBV.index_to_keys(df, y_col)
-
-#CONVERT SELECT DF to NP
-
-x = df[X_KEYS].to_numpy()
-y = df[Y_KEYS].to_numpy()
-
-xtemp=[];ytemp=[];
-for i in range(0,len(x)):
-    if(not 'nan' in str(x[i])):
-        xtemp.append(x[i])
-        ytemp.append(y[i])
-
-X=np.array(xtemp)
-Y=np.array(ytemp)
-NFIT=X.shape[1]+1
-
-#TAKE MEAN AND STD DOWN COLUMNS (I.E DOWN SAMPLE DIMENSION)
-XMEAN=np.mean(X,axis=0); XSTD=np.std(X,axis=0) 
-YMEAN=np.mean(Y,axis=0); YSTD=np.std(Y,axis=0) 
-
-# if(I_NORMALIZE):
-#     X=(X-XMEAN)/XSTD; Y=(Y-YMEAN)/YSTD
-#     I_UNNORMALIZE=True
-# else:
-#     I_UNNORMALIZE=False
-    
-    
-
-#NORMALIZE 
-X=(X-XMEAN)/XSTD;  Y=(Y-YMEAN)/YSTD  
-
-
-
-
-
-
 #------------------------
 #CODE PARAMETERS
 #------------------------
 
-#USER PARAMETERS
-IPLOT=True
+#MISC PARAMETERS
+IPLOT		=	True
+I_NORMALIZE =	True;
+# model_type 	=	"linear";  
+# model_type 	=	"logistic";  	 
+model_type 	=	"ANN";  		
 
-PARADIGM='batch'
-
-#UNCOMMENT FOR VARIOUS MODELS
-#model_type="logistic";
-model_type="linear";  
-
+#OPTIMIZATION PARAM
+PARADIGM 	=	'batch'
+algo 		=	"MOM"	#GD OR MOM
+LR 			=	0.1  	#LEARNING RATE
+dx 			=	0.0001	#STEP SIZE FOR FINITE DIFFERENCE
+max_iter 	=	2000	#MAX NUMBER OF ITERATION
+tol 		= 	10**-10	#EXIT AFTER CHANGE IN LOSS IS LESS THAN THIS 
+max_rand_wb	=	1.0 	#MAX FOR RANDOM INITIAL GUESS
+GAMMA_L1	=	0.0		#L1 REGULARIZATION CONSTANT
+GAMMA_L2	=	0.01	#L2 REGULARIZATION CONSTANT
+alpha		=	0.25	#MOMENTUM PARAMETER
+#ANN PARAM
+layers		=	['overwrite',5,5,1] #FIRST NUMBER OVERWRITTEN LATER BY INPUT SHAPE
+activation	=	"TANH"	#SIGMOID OR TAHN
 
 #SAVE HISTORY FOR PLOTTING AT THE END
 epoch=1; epochs=[]; loss_train=[];  loss_val=[]
 
+#------------------------
+#GET DATA 
+#------------------------
+#The Auto MPG dataset
+#The dataset is available from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/).
+#First download and import the dataset using pandas:
+import pandas as pd 
+
+url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data'
+column_names = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
+                'Acceleration', 'Model Year', 'Origin']
+
+df = pd.read_csv(url, names=column_names,
+                          na_values='?', comment='\t',
+                          sep=' ', skipinitialspace=True)
+
+#EXPLORE DATA
+#IMPORT MY SEABORN_VISUALIZER SCRIPT
+import Seaborn_visualizer as SBV
+# SBV.get_pd_info(df)
+# SBV.pd_general_plots(df,HUE='Origin')
+
+
+#------------------------
+#CONVERT TO MATRICES AND NORMALIZE
+#------------------------
+
+#SELECT COLUMNS TO USE AS VARIABLES 
+# x_col=[2]; 
+# x_col=[2,4,5]; 
+x_col=[1,2,3,4,5]; 
+y_col=[0];  xy_col=x_col+y_col
+X_KEYS =SBV.index_to_keys(df,x_col)        #dependent var
+Y_KEYS =SBV.index_to_keys(df,y_col)        #independent var
+print(X_KEYS); print(Y_KEYS); # exit()
+
+#CONVERT SELECT DF TO NP
+x=df[X_KEYS].to_numpy()
+y=df[Y_KEYS].to_numpy()
+
+#REMOVE NAN IF PRESENT
+xtmp=[]; ytmp=[];
+for i in range(0,len(x)):
+    if(not 'nan' in str(x[i])):
+        xtmp.append(x[i])
+        ytmp.append(y[i])
+
+#MAKE ROWS=SAMPLE DIMENSION (TRANSPOSE)
+X=np.array(xtmp); Y=np.array(ytmp)
+NFIT=X.shape[1]+1  		#plus one for the bias term
+
+### definne activation function
+
+# SIGMOID
+def S(x): return 1.0/(1.0+np.exp(-x))
+
+# Tanh
+def T(x): return 2(S(2*x)-0.5)
+
+print('--------INPUT INFO-----------')
+print("X shape:",X.shape); print("Y shape:",Y.shape,'\n')
+
+XMEAN=np.mean(X,axis=0); XSTD=np.std(X,axis=0) 
+YMEAN=np.mean(Y,axis=0); YSTD=np.std(Y,axis=0) 
+
+#TAKE MEAN AND STD DOWN COLUMNS (I.E DOWN SAMPLE DIMENSION)
+if(I_NORMALIZE):
+	X=(X-XMEAN)/XSTD;  Y=(Y-YMEAN)/YSTD  
+	I_UNNORMALIZE=True
+else:
+	I_UNNORMALIZE=False
 
 #------------------------
 #PARTITION DATA
@@ -110,37 +140,10 @@ print("train_idx shape:",train_idx.shape)
 print("val_idx shape:"  ,val_idx.shape)
 print("test_idx shape:" ,test_idx.shape)
 
+#------------------------
+#MODEL
+#------------------------
 
-
-
-
-##########
-############
-#Lecture Codes
-#############
-##############
-
-
-IPLOT=True
-I_NORMALIZE=True
-model_type="linear"
-model_type="ANN"
-
-# Optimization parameter
-PARADIGM = "minibatch"
-algo= "MOM"
-LR=0.1
-dx=0.0001
-max_iter=5000
-tol=10**-10
-max_rand_wb=1.0
-GAMMA_L1 = 0.0
-GAMMA_L2 = 0.0001
-alpha=0.25
-# ANN PARAM
-
-layers= [5,5,5,1]
-activations = "TANH"
 
 
 
@@ -157,52 +160,50 @@ def extract_submatrices(WB):
 		b=np.transpose(np.array([WB[K:K+Nrow*Ncol]])) #unpack/ W 
 		K=K+Nrow*Ncol; #print i,k0,K
 		submatrices.append(w); submatrices.append(b)
-		print(w.shape,b.shape)
+		#print(w.shape,b.shape)
 	return submatrices
 
-#CALCULATE NUMBER OF FITTING PARAMETERS FOR SPECIFIED NN 
-NFIT=0; 
-for i in range(1,len(layers)):
-	NFIT=NFIT+layers[i-1]*layers[i]+layers[i]
 
-print("NFIT			:	",NFIT)
+if(model_type=="ANN"):
+	layers[0]		=	 X.shape[1]  	#OVERWRITE WITH INPUT SIZE
 
+	#CALCULATE NUMBER OF FITTING PARAMETERS FOR SPECIFIED NN 
+	NFIT=0; 
+	for i in range(1,len(layers)):  
+		NFIT=NFIT+layers[i-1]*layers[i]+layers[i]
+	print("NFIT		:	",NFIT)
 
+# Here I change the parameter for activations, so it can input activation functions for each layers
+activations	=	["TANH"	,"TANH"	,"TANH"	]
 
-#------------------------
-#MODEL
-#------------------------
-
-### definne activation function
-
-# SIGMOID
-def S(x): return 1.0/(1.0+np.exp(-x))
-
-# Tanh
-def T(x): return (np.exp(2*x)-1)/(np.exp(2*x)+1)
-
-
-# suitable for both linear, logistic and ANN models
-
-def model(x,p):
-    linear=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
-    if(model_type=="linear"):   return  linear 
-    if(model_type=="logistic"): return  S(linear)
-    if(model_type=="ANN"):
-        p_layer = extract_submatrices(p)
+def NN_eval(x,submatrices):
+ 
         result = x
         for i in range(len(layers)-1):
-            weight = np.transpose(p_layer[2*i])
-            bias = np.transpose(p_layer[2*i+1])
+            weight = np.transpose(submatrices[2*i])
+            bias = np.transpose(submatrices[2*i+1])
             result = np.matmul(result,weight)+bias
             if activations[i] == "linear":
               result = result
             elif activations[i] == "sigmoid":
               result = S(result)
-            elif activations[i] == "tanh":
+            elif activations[i] == "TANH":
               result = T(result)
         return(result)    
-    
+
+
+
+def model(x,p):
+	if(model_type=="linear" or model_type=="logistic" ):   
+		out=p[0]+np.matmul(x,p[1:].reshape(NFIT-1,1))
+		if(model_type=="logistic"): out=S(out)
+		return  out  
+
+	if(model_type=="ANN"):
+		submatrices=extract_submatrices(p)
+		return  NN_eval(x,submatrices)
+
+
 
 #FUNCTION TO MAKE VARIOUS PREDICTIONS FOR GIVEN PARAMETERIZATION
 def predict(p):
@@ -216,28 +217,19 @@ def predict(p):
 #------------------------
 #LOSS FUNCTION
 #------------------------
-### adding L1 and L2 regularization with the weight parameter lambda
 
-## When GAMMA_L2=0.0,GAMMA_L1 equal to some value ====> L1 regularization
-## When GAMMA_L1=0.0,GAMMA_L2 equal to some value ====> L2 regularization
-
-def loss(p,index_2_use,reg="None",GAMMA_L1=0.0,GAMMA_L2=0.001):
-    errors=model(X[index_2_use],p)-Y[index_2_use]#VECTOR OF ERRORS
-    #Cost function
-    training_loss=np.sum(errors**2.0)+GAMMA_L1*np.sum(np.absolute(p))+GAMMA_L2*np.sum(p**2)
-    return training_loss
-    # if(reg == "None"):   
-    #     training_loss=np.sum(errors**2.0)	#Cost function
-    # elif(reg == "L1"):       
-    #     training_loss=np.sum(errors**2.0)+lam*np.sum(np.absolute(p))
-    # elif(reg== "L2"):        
-    #     training_loss=np.sum(errors**2.0)+ lam * np.sum(p**2)
-    
-
+def loss(p,index_2_use):
+	errors=model(X[index_2_use],p)-Y[index_2_use]  #VECTOR OF ERRORS
+	out=np.mean(errors**2.0)				#MSE
+	if(GAMMA_L1!=0.0):
+		out=out+GAMMA_L1*np.sum(np.absolute(p))
+	if(GAMMA_L2!=0.0):
+		out=out+GAMMA_L2*np.sum(p**2.0)
+	return out
 #------------------------
 #MINIMIZER FUNCTION
 #------------------------
-def minimizer(f,xi, algo='GD', LR=0.01):
+def minimizer(f,xi):
 	global epoch,epochs, loss_train,loss_val 
 	# x0=initial guess, (required to set NDIM)
 	# algo=GD or MOM
@@ -245,10 +237,8 @@ def minimizer(f,xi, algo='GD', LR=0.01):
 
 	#PARAM
 	iteration=1			#ITERATION COUNTER
-	dx=0.0001			#STEP SIZE FOR FINITE DIFFERENCE
-	max_iter=5000		#MAX NUMBER OF ITERATION
-	tol=10**-10			#EXIT AFTER CHANGE IN F IS LESS THAN THIS 
 	NDIM=len(xi)		#DIMENSION OF OPTIIZATION PROBLEM
+	dx_m1=0.0
 
 	#OPTIMIZATION LOOP
 	while(iteration<=max_iter):
@@ -259,8 +249,35 @@ def minimizer(f,xi, algo='GD', LR=0.01):
 		if(PARADIGM=='batch'):
 			if(iteration==1): index_2_use=train_idx
 			if(iteration>1):  epoch+=1
-		else:
-			print("REQUESTED PARADIGM NOT CODED"); exit()
+
+		if(PARADIGM=='mini_batch'):
+			#50-50 batch size hard coded
+			if(iteration==1): 
+				#DEFINE BATCHS
+				batch_size=int(train_idx.shape[0]/2)
+				#BATCH-1
+				index1 = np.random.choice(train_idx, batch_size, replace=False)  
+				index_2_use=index1; #epoch+=1
+				#BATCH-2
+				index2 = []
+				for i1 in train_idx:
+					if(i1 not in index1): index2.append(i1)
+				index2=np.array(index2)
+			else: 
+				#SWITCH EVERY OTHER ITERATION
+				if(iteration%2==0):
+					index_2_use=index1
+				else:
+					index_2_use=index2
+					epoch+=1
+
+		if(PARADIGM=='stocastic'):
+			if(iteration==1): counter=0;
+			if(counter==train_idx.shape[0]): 
+				counter=0;  epoch+=1 #RESET 
+			else: 
+				counter+=1
+			index_2_use=counter
 
 		#-------------------------
 		#NUMERICALLY COMPUTE GRADIENT 
@@ -281,12 +298,16 @@ def minimizer(f,xi, algo='GD', LR=0.01):
 			
 		#TAKE A OPTIMIZER STEP
 		if(algo=="GD"):  xip1=xi-LR*df_dx 
-		if(algo=="MOM"): print("REQUESTED ALGORITHM NOT CODED"); exit()
+		if(algo=="MOM"): 
+			step=LR*df_dx+alpha*dx_m1
+			xip1=xi-step
+			dx_m1=step
 
 		#REPORT AND SAVE DATA FOR PLOTTING
 		if(iteration%1==0):
 			predict(xi)	#MAKE PREDICTION FOR CURRENT PARAMETERIZATION
-			print(iteration,"	",epoch,"	",MSE_T,"	",MSE_V) 
+			# print(iteration,"	",epoch,"	",MSE_T,"	",MSE_V) 
+			print(iteration,"	",xi,"	",MSE_T) 
 
 			#UPDATE
 			epochs.append(epoch); 
@@ -311,9 +332,6 @@ def minimizer(f,xi, algo='GD', LR=0.01):
 #RANDOM INITIAL GUESS
 po=np.random.uniform(-max_rand_wb,max_rand_wb,size=NFIT)
 
-# print(po)
-# extract_submatrices(po)
-
 #TRAIN MODEL USING SCIPY MINIMIZ 
 p_final=minimizer(loss,po)		
 print("OPTIMAL PARAM:",p_final)
@@ -334,12 +352,12 @@ def plot_0():
 	plt.show()
 
 #FUNCTION PLOTS
-def plot_1(xla='x',yla='MPG',i=0):
+def plot_1(xcol=1,xla='x',yla='y'):
 	fig, ax = plt.subplots()
-	ax.plot(X[train_idx][:,i]    , Y[train_idx],'o', label='Training') 
-	ax.plot(X[val_idx][:,i]      , Y[val_idx],'x', label='Validation') 
-	ax.plot(X[test_idx][:,i]     , Y[test_idx],'*', label='Test') 
-	ax.plot(X[train_idx][:,i]    , YPRED_T,'.', label='Model') 
+	ax.plot(X[train_idx][:,xcol]    , Y[train_idx],'o', label='Training') 
+	ax.plot(X[val_idx][:,xcol]      , Y[val_idx],'x', label='Validation') 
+	ax.plot(X[test_idx][:,xcol]     , Y[test_idx],'*', label='Test') 
+	ax.plot(X[train_idx][:,xcol]    , YPRED_T,'.', label='Model') 
 	plt.xlabel(xla, fontsize=18);	plt.ylabel(yla, fontsize=18); 	plt.legend()
 	plt.show()
 
@@ -352,22 +370,22 @@ def plot_2(xla='y_data',yla='y_predict'):
 	plt.xlabel(xla, fontsize=18);	plt.ylabel(yla, fontsize=18); 	plt.legend()
 	plt.show()
 	
-if (IPLOT):
-    
-    plot_0()
-        
-    #UNNORMALIZE RELEVANT ARRAYS
-    X=XSTD*X+XMEAN 
-        
-    Y=YSTD*Y+YMEAN; YPRED_T=YSTD*YPRED_T+YMEAN;YPRED_V=YSTD*YPRED_V+YMEAN ;YPRED_TEST=YSTD*YPRED_TEST+YMEAN ;  
-    
-    plot_1('Cylinders',i=0)	
-    plot_1('Displacement',i=1)
-    plot_1('Horsepower',i=2)
-    plot_1('Weight',i=3)
-    plot_1('Acceleration',i=4)
-    plot_2()
+if(IPLOT):
 
+	plot_0()
 
+	if(I_UNNORMALIZE):
+		#UNNORMALIZE RELEVANT ARRAYS
+		X=XSTD*X+XMEAN 
+		Y=YSTD*Y+YMEAN 
+		YPRED_T=YSTD*YPRED_T+YMEAN 
+		YPRED_V=YSTD*YPRED_V+YMEAN 
+		YPRED_TEST=YSTD*YPRED_TEST+YMEAN 
 
+	i=0
+	for key in X_KEYS:
+		plot_1(i,xla=key,yla=Y_KEYS[0])
+		i=i+1 
+
+	plot_2()
 
