@@ -127,6 +127,23 @@ average_mae_history = [np.mean([x[i] for x in all_mae_histories]) for i in range
 train_loss_history = [np.mean([x[i] for x in train_loss_histories]) for i in range(num_epochs)]
 val_loss_history = [np.mean([x[i] for x in val_loss_histories]) for i in range(num_epochs)]
 
+
+
+############################################################
+############################################################
+
+# Model evaluation by results and plots
+# Plot for the Validation MAE
+# Plot for the training and validating loss
+# Plot for the training and validating MAE
+
+############################################################
+############################################################
+
+
+# Plot for the Validation MAE
+
+
 import matplotlib.pyplot as plt
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history)
 plt.xlabel('Epochs')
@@ -134,6 +151,7 @@ plt.ylabel('Validation MAE')
 plt.show()
 
 
+# Plot for the training and validating MAE
 fig, ax = plt.subplots()
 ax.plot(range(1, len(train_mae_history) + 1), train_mae_history, 'o', label='Training mae')
 ax.plot(range(1, len(average_mae_history) + 1), average_mae_history, 'o', label='Validation mae')
@@ -142,6 +160,7 @@ plt.ylabel('mae', fontsize=18)
 plt.legend()
 plt.show()
 
+# Plot for the training and validating loss
 fig, ax = plt.subplots()
 ax.plot(range(1, len(train_loss_history) + 1), train_loss_history, 'o', label='Training loss')
 ax.plot(range(1, len(val_loss_history) + 1), val_loss_history, 'o', label='Validation loss')
