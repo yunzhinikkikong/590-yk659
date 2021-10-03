@@ -99,7 +99,6 @@ val_loss_values = history_dict['val_loss']
 acc = history.history['acc']
 val_acc = history.history['val_acc']
 epochs = range(1, len(acc) + 1)
-
 auc = history.history['auc']
 val_auc = history.history['val_auc']
 # Plot for the training and validating loss
@@ -142,11 +141,7 @@ plt.legend()
 plt.show()
 
 
-
-
-
-
-
+# model evaluation
 model.fit(x_train, y_train, epochs=4, batch_size=512)
 results = model.evaluate(x_test, y_test)
 print("Loss and Accuracy:",results)
