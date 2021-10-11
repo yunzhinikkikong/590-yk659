@@ -377,6 +377,21 @@ plt.show()
 ## feature maps that output from selected or all convolution and pooling layers in the network.
 ## This visualization method shows how an input is decomposed into the different filters learned by network
 
+### input image from test data
+
+img_path = 'cats_and_dogs_small/test/cats/cat.1700.jpg'
+from keras.preprocessing import image
+import numpy as np
+img = image.load_img(img_path, target_size=(150, 150))
+img_tensor = image.img_to_array(img)
+img_tensor = np.expand_dims(img_tensor, axis=0)
+img_tensor /= 255.
+# display the pic
+
+import matplotlib.pyplot as plt
+plt.imshow(img_tensor[0])
+plt.show()
+
 
 ### Load the second model (with data augmentation)
 from keras.models import load_model
@@ -387,6 +402,7 @@ model = load_model('cats_and_dogs_small_2.h5')
 from keras import models
 layer_outputs = [layer.output for layer in model.layers[:8]]
 activation_model = models.Model(inputs=model.input, outputs=layer_outputs)
+activations = activation_model.predict(img_tensor)
 
 
 ### Visualizing every channel in every intermediate activation
@@ -422,9 +438,25 @@ for layer_name, layer_activation in zip(layer_names, activations):
     plt.title(layer_name)
     plt.grid(False)
     plt.imshow(display_grid, aspect='auto', cmap='viridis')
+    plt.show()
 
 
+###########################################################################################
+
+# The following two visualization methods are using VGG16 network
 
 ############################################
 #### Visualizing convnet filters ####
 ############################################
+
+
+
+
+from keras.applications import VGG16
+from keras import backend as K
+    model = VGG16(weights='imagenet',
+    include_top=False)
+    layer_name = 'block3_conv1'
+    filter_index = 0
+    layer_output = model.get_layer(layer_name).output
+    loss = K.mean(layer_output[:, :, :, filter_index])
