@@ -317,6 +317,8 @@ validation_generator = test_datagen.flow_from_directory(
 #############################
 
 ### Fitting the model using the generator
+### I adjust the epochs and steps_per_epoch value here because it runs very slow 
+# with the original steps_per_epoch=100, epochs=100
 history = model.fit_generator(
     train_generator,
     steps_per_epoch=20,
