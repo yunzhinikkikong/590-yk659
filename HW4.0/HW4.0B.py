@@ -124,26 +124,26 @@ model = models.Sequential()
 # ### a single unit (a Dense layer of size 1) and a sigmoid activation.
 # ### This unit will encode the probability that the network is looking at one class or the other.
 
-# model.add(layers.Conv2D(32, (3, 3), activation='relu',
-# input_shape=(150, 150, 3)))
-# model.add(layers.MaxPooling2D((2, 2)))
-# model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-# model.add(layers.MaxPooling2D((2, 2)))
-# model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-# model.add(layers.MaxPooling2D((2, 2)))
-# model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-# model.add(layers.MaxPooling2D((2, 2)))
-# model.add(layers.Flatten())
-# model.add(layers.Dense(512, activation='relu'))
-# model.add(layers.Dense(1, activation='sigmoid'))
+model.add(layers.Conv2D(32, (3, 3), activation='relu',
+input_shape=(150, 150, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Flatten())
+model.add(layers.Dense(512, activation='relu'))
+model.add(layers.Dense(1, activation='sigmoid'))
 
 # # Configuring the model for training
 # ## use binary crossentropy as the loss since it is a binary classification problem
 # ## return accuracy
 from keras import optimizers
-# model.compile(loss='binary_crossentropy',
-# optimizer=optimizers.RMSprop(lr=1e-4),
-# metrics=['acc'])
+model.compile(loss='binary_crossentropy',
+optimizer=optimizers.RMSprop(lr=1e-4),
+metrics=['acc'])
 
 
 # #############################
@@ -161,68 +161,68 @@ from keras import optimizers
 
 from keras.preprocessing.image import ImageDataGenerator
 # # Rescales all images by 1/255
-# train_datagen = ImageDataGenerator(rescale=1./255) 
-# test_datagen = ImageDataGenerator(rescale=1./255)
+train_datagen = ImageDataGenerator(rescale=1./255) 
+test_datagen = ImageDataGenerator(rescale=1./255)
 # # for training set
-# train_generator = train_datagen.flow_from_directory(
-#     train_dir,
-#     target_size=(150, 150),  # Resizes all images to 150 × 150
-#     batch_size=20,
-#     class_mode='binary') # binary_crossentropy loss, so binary labels.
+train_generator = train_datagen.flow_from_directory(
+     train_dir,
+     target_size=(150, 150),  # Resizes all images to 150 × 150
+     batch_size=20,
+     class_mode='binary') # binary_crossentropy loss, so binary labels.
 # # same for validation set
-# validation_generator = test_datagen.flow_from_directory(
-#     validation_dir,
-#     target_size=(150, 150),
-#     batch_size=20,
-#     class_mode='binary')
+ validation_generator = test_datagen.flow_from_directory(
+     validation_dir,
+     target_size=(150, 150),
+     batch_size=20,
+     class_mode='binary')
 
 
 # ### There are 20 samples in each batch (the batch size) with of 150 × 150 RGB
 # # images and binary labels (shape (20,))
-# for data_batch, labels_batch in train_generator:
-#     print('data batch shape:', data_batch.shape)
-#     print('labels batch shape:', labels_batch.shape)
-#     break
+for data_batch, labels_batch in train_generator:
+     print('data batch shape:', data_batch.shape)
+     print('labels batch shape:', labels_batch.shape)
+     break
 
 # #############################
 # #### Model Fitting #######
 # #############################
 
 # ### Fitting the model using a batch generator
-# history = model.fit_generator(
-#     train_generator,
-#     steps_per_epoch=100,
-#     epochs=30,
-#     validation_data=validation_generator,
-#     validation_steps=50)
+history = model.fit_generator(
+    train_generator,
+    steps_per_epoch=100,
+    epochs=30,
+    validation_data=validation_generator,
+    validation_steps=50)
 
 
 # # save the model
-# model.save('cats_and_dogs_small_1.h5')
+model.save('cats_and_dogs_small_1.h5')
 
-# #############################
-# #### Model Evaluation #######
-# #############################
+#############################
+#### Model Evaluation #######
+#############################
 
-# ## training and validation loss plot
-# ## training and validation accuracy plot
+## training and validation loss plot
+## training and validation accuracy plot
 
-# import matplotlib.pyplot as plt
-# acc = history.history['acc']
-# val_acc = history.history['val_acc']
-# loss = history.history['loss']
-# val_loss = history.history['val_loss']
-# epochs = range(1, len(acc) + 1)
-# plt.plot(epochs, acc, 'bo', label='Training acc')
-# plt.plot(epochs, val_acc, 'b', label='Validation acc')
-# plt.title('Training and validation accuracy')
-# plt.legend()
-# plt.figure()
-# plt.plot(epochs, loss, 'bo', label='Training loss')
-# plt.plot(epochs, val_loss, 'b', label='Validation loss')
-# plt.title('Training and validation loss')
-# plt.legend()
-# plt.show()
+import matplotlib.pyplot as plt
+acc = history.history['acc']
+val_acc = history.history['val_acc']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+epochs = range(1, len(acc) + 1)
+plt.plot(epochs, acc, 'bo', label='Training acc')
+plt.plot(epochs, val_acc, 'b', label='Validation acc')
+plt.title('Training and validation accuracy')
+plt.legend()
+plt.figure()
+plt.plot(epochs, loss, 'bo', label='Training loss')
+plt.plot(epochs, val_loss, 'b', label='Validation loss')
+plt.title('Training and validation loss')
+plt.legend()
+plt.show()
 
 
 ####################################################################################
@@ -351,8 +351,6 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
-
-exit()
 
 ############################################
 #### Visualizing what convnets learn #######
@@ -558,9 +556,10 @@ model = VGG16(weights='imagenet')
 # Preprocessing an input image for VGG16
 ########################################
 from keras.preprocessing import image
+from keras import backend as K
 from keras.applications.vgg16 import preprocess_input, decode_predictions
 import numpy as np
-# I choosed a dog pic from cat and dog example testing set
+### I choosed a dog pic from cat and dog example testing set not the elephant pic on textbook ###
 img_path = 'cats_and_dogs_small/test/dogs/dog.1700.jpg'
 
 ### convert this image into something the VGG16 model can read
@@ -574,33 +573,59 @@ x = np.expand_dims(x, axis=0)
 # Preprocesses the batch (this does channel-wise color normalization)
 x = preprocess_input(x)
 
+
+########################################
+# Run the pretrained network on the image
+########################################
+
+#### run the pretrained network on the image and 
+# decode its prediction vector back to a human-readable format:
 preds = model.predict(x)
 print('Predicted:', decode_predictions(preds, top=3)[0])
 
-np.argmax(preds[0])
+# The top three classes predicted for this image are as follows:
+# 1. flat-coated_retriever. (with 74.7% probability)
+# 2. Labrador_retriever (with 7.3% probability)
+# 3. curly-coated_retriever (with 5.6% probability)
 
-dog_output = model.output[:, 386]
+########################################
+# Heatmap
+########################################
+
+# The entry in the prediction vector that was maximally activated is
+# the one corresponding to the "flat-coated_retriever" class, at index 205:
+np.argmax(preds[0]) # output 205
+dog_output = model.output[:, 205]
+# Output feature map of the block5_conv3 layer, the last convolutional layer in VGG16
 last_conv_layer = model.get_layer('block5_conv3')
-
+# Gradient of the “flat-coated_retriever” class with regard to the output feature map of block5_conv3
 grads = K.gradients(dog_output, last_conv_layer.output)[0]
 pooled_grads = K.mean(grads, axis=(0, 1, 2))
-iterate = K.function([model.input],
-[pooled_grads, last_conv_layer.output[0]])
+print(pooled_grads.shape) # output (512,) 
+# access the values of the quantities that just defined: pooled_grads and the
+# output feature map of block5_conv3, given a sample image
+iterate = K.function([model.input],[pooled_grads, last_conv_layer.output[0]])
 pooled_grads_value, conv_layer_output_value = iterate([x])
-for i in range(512):
+for i in range(512): # Vector of shape (512,),
     conv_layer_output_value[:, :, i] *= pooled_grads_value[i]
+# The channel-wise mean of the resulting feature map is the heatmap of the class activation.
 heatmap = np.mean(conv_layer_output_value, axis=-1)
-
+# normalize the heatmap between 0 and 1 then show
 heatmap = np.maximum(heatmap, 0)
 heatmap /= np.max(heatmap)
 plt.matshow(heatmap)
 plt.show()
 
-
+### use OpenCV to generate an image that superimposes the original image on the heatmap just obtained
 import cv2
-img = cv2.imread(img_path)
-heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
+img = cv2.imread(img_path) # Uses cv2 to load the original image
+# Resizes the heatmap to be the same size as the original image
+heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0])) 
+# Converts the heatmap to RGB
 heatmap = np.uint8(255 * heatmap)
+# Applies the heatmap to the original image
 heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+# 0.4 here is a heatmap intensity factor.
 superimposed_img = heatmap * 0.4 + img
+# Saves the image to disk
 cv2.imwrite('dog.jpg', superimposed_img)
