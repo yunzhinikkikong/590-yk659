@@ -13,10 +13,22 @@ Created on Sun Sep 21 13:03:42 2021
 
 
 ## Training a convent from scratch on a small dataset
+## The dataset downloaded from Kaggle has 25,000 images.
+## the textbook example downsize the dataset by:
+## total training cat images: 1000
+## total training dog images: 1000
+## total validation cat images: 500
+## total validation dog images: 500
+## total test cat images: 500
+##total test dog images: 500
+
 import os, shutil
-original_dataset_dir = '/Users/fchollet/Downloads/kaggle_original_data'
-base_dir = '/Users/fchollet/Downloads/cats_and_dogs_small'
+original_dataset_dir = 'DOGS-AND-CATS'
+base_dir = 'cats_and_dogs_small'
 os.mkdir(base_dir)
+# Directories for the training, validation, and test splits
+
+
 train_dir = os.path.join(base_dir, 'train')
 os.mkdir(train_dir)
 validation_dir = os.path.join(base_dir, 'validation')
@@ -70,7 +82,19 @@ for fname in fnames:
     shutil.copyfile(src, dst)
     
     
-    
+print('total training cat images:', len(os.listdir(train_cats_dir)))
+
+print('total training dog images:', len(os.listdir(train_dogs_dir)))
+
+print('total validation cat images:', len(os.listdir(validation_cats_dir)))
+
+print('total validation dog images:', len(os.listdir(validation_dogs_dir)))
+
+print('total test cat images:', len(os.listdir(test_cats_dir)))
+
+print('total test dog images:', len(os.listdir(test_dogs_dir)))
+
+exit()
     
     
 from keras import layers
