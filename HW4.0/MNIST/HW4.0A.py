@@ -7,17 +7,18 @@ import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
+from keras import optimizers
 
 
-#########################################
+####################################################
 #### Load MNIST, MNIST Fashion, CIFAR-10 datasets
-##################################################
+####################################################
 
 ##### Uncomment to choose dataset
 
 #dataset="MNIST"
-dataset="MNIST_FASHION"
-#dataset="CIFAR-10"
+#dataset="MNIST_FASHION"
+dataset="CIFAR-10"
 
 
 
@@ -80,7 +81,7 @@ print("batch_size",batch_size)
 rand_indices = np.random.permutation(train_images.shape[0])
 train_images=train_images[rand_indices[0:NKEEP],:,:]
 train_labels=train_labels[rand_indices[0:NKEEP]]
-# exit()
+
 
 
 #CONVERTS A CLASS VECTOR (INTEGERS) TO BINARY CLASS MATRIX.
@@ -120,27 +121,82 @@ val_label=train_labels[val_idx]
 #-------------------------------------
 #BUILD MODEL SEQUENTIALLY (LINEAR STACK)
 #-------------------------------------
-model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
-model.add(layers.MaxPooling2D((2, 2)))
 
-model.add(layers.Conv2D(64, (3, 3), activation='relu')) 
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model_type="CNN"
+data_augmentation = True
 
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10, activation='softmax'))
+#HIDDEN LAYER PARAM
+N_HIDDEN    =   2           #NUMBER OF HIDDLE LAYERS
+N_NODES  	=	64          #NODES PER HIDDEN LAYER
+ACT_TYPE    =   'relu'  
+LR=0.001
+OUTPUT_ACTIVATION = 'softmax'
+OPTIMIZER	=	'rmsprop'
+LOSS = 'categorical_crossentropy'
+METRICS = ['acc']
 
-model.summary()
+#BUILD LAYER ARRAYS FOR ANN
+ACTIVATIONS=[]; LAYERS=[]   
+for i in range(0,N_HIDDEN):
+    LAYERS.append(N_NODES)
+    ACTIVATIONS.append(ACT_TYPE)
+
+print("LAYERS:",LAYERS)
+print("ACTIVATIONS:", ACTIVATIONS)
+
+if(model_type=="ANN"):
+    model = models.Sequential()
+    #HIDDEN LAYERS
+    model.add(layers.Dense(LAYERS[0], activation=ACTIVATIONS[0], input_shape=(train_image.shape[1])))
+    for i in range(1,len(LAYERS)):
+        model.add(layers.Dense(LAYERS[i], activation=ACTIVATIONS[i]))
+    #OUTPUT LAYER
+    model.add(layers.Dense(10, activation=OUTPUT_ACTIVATION))
+
+    
+
+   
+    
+
+
+if(model_type=="CNN"):
+
+    model = models.Sequential()
+    model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(train_images.shape[1], train_images.shape[2], train_images.shape[3])))
+    model.add(layers.MaxPooling2D((2, 2)))
+    
+    model.add(layers.Conv2D(64, (3, 3), activation='relu')) 
+    model.add(layers.MaxPooling2D((2, 2)))
+    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    model.add(layers.Flatten())
+    if(data_augmentation=="True"):   
+        # a Dropout layer
+        model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(64, activation='relu'))
+    model.add(layers.Dense(10, activation='softmax'))
+        
+    
+#COMPILE
+if(OPTIMIZER=='rmsprop' and LR!=0):
+        opt = optimizers.RMSprop(learning_rate=LR)
+else:
+        opt = OPTIMIZER    
+
 
 
 #-------------------------------------y
 #COMPILE AND TRAIN MODEL
 #-------------------------------------
-model.compile(optimizer='rmsprop',
-              loss='categorical_crossentropy',
-              metrics=['acc'])
+
+
+
+model.compile(optimizer=opt, 
+              loss=LOSS, 
+              metrics=METRICS
+                 )
+
+
+
 model.fit(train_image, train_label, epochs=epochs, batch_size=batch_size)
 
 
@@ -190,9 +246,6 @@ val_loss, val_acc = model.evaluate(val_image, val_label, batch_size=batch_size)
 test_loss, test_acc = model.evaluate(test_images, test_labels, batch_size=test_images.shape[0])
 print('train_acc:', train_acc)
 print('test_acc:', test_acc)
-
-
-
 
 
 #-------------------------------------
