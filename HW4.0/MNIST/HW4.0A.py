@@ -9,28 +9,53 @@ warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 from keras import optimizers
 
-#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
 
-
-
-####################################################
-#### Load MNIST, MNIST Fashion, CIFAR-10 datasets
-####################################################
-
+#### Organize all hyper-param in one place 
 ##### Uncomment to choose dataset
 
 dataset="MNIST"
 #dataset="MNIST_FASHION"
 #dataset="CIFAR-10"
 
-#model_type = "CNN"
-model_type = "DFF_ANN"
+model_type = "CNN"
+#model_type = "DFF_ANN"
+data_augmentation = True
+
+# all hyper param
+
+#HIDDEN LAYER PARAM
+N_HIDDEN    =   3          #NUMBER OF HIDDLE LAYERS
+N_NODES  	=	64          #NODES PER HIDDEN LAYER
+ACT_TYPE    =   'relu'  
+LR=0.001
+OUTPUT_ACTIVATION = 'softmax'
+OPTIMIZER	=	'rmsprop'
+LOSS = 'categorical_crossentropy'
+METRICS = ['acc']
+
+# 10 probability scores
+output_size = 10
+# for CNN
+filter_size = (3,3)
+pooling_size = (2,2)
+last_dense_node = 64
+# data augmentation thresold
+dropout = 0.5
+epochs=2
+# batch size will be include after laoding dataset
+
+####################################################
+#### Load MNIST, MNIST Fashion, CIFAR-10 datasets
+####################################################
+
+
 
 if(dataset=="MNIST"): 
     ### MNIST
     from keras.datasets import mnist
     
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+    ### Reformat the data
     if(model_type=="DFF_ANN"):
         train_images = train_images.reshape((60000, 28*28))
         test_images = test_images.reshape((10000, 28*28))
@@ -42,28 +67,37 @@ if(dataset=="MNIST_FASHION"):
     ### MNIST Fashion
     from keras.datasets import fashion_mnist
     (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
-    train_images = train_images.reshape((60000, 28, 28, 1))
-    test_images = test_images.reshape((10000, 28, 28, 1))
+    ### Reformat the data
+    if(model_type=="CNN"):
+        train_images = train_images.reshape((60000, 28, 28, 1))
+        test_images = test_images.reshape((10000, 28, 28, 1))
+    if(model_type=="DFF_ANN"):
+        train_images = train_images.reshape((60000, 28*28))
+        test_images = test_images.reshape((10000, 28*28))
     
 if(dataset=="CIFAR-10"):   
     ### CIFAR-10
     from keras.datasets import cifar10
     (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-    train_images = train_images.reshape((50000, 32,32,3))
-    test_images = test_images.reshape((10000, 32, 32, 3))
+    ### Reformat the data
+    if(model_type=="CNN"):
+        train_images = train_images.reshape((50000, 32,32,3))
+        test_images = test_images.reshape((10000, 32, 32, 3))
+    if(model_type=="DFF_ANN"):
+        train_images = train_images.reshape((50000, 32*32))
+        test_images = test_images.reshape((10000, 32*32))
+    
+batch_size=int(0.05*train_images.shape[0])
 
-NKEEP=train_images.shape[0]
-batch_size=int(0.05*NKEEP)
-epochs=2
-print("batch_size",batch_size)
-### Reformat the data
+
+
 
 #NORMALIZE
 train_images = train_images.astype('float32') / 255 
 test_images = test_images.astype('float32') / 255  
 
 
-#### Organize all hyper-param in one place 
+
 
 
 
@@ -78,13 +112,8 @@ def plot_image(number):
     plt.imshow(image, cmap=plt.cm.gray)
     plt.show()
 
-
-#plot_image(3)
-
-
-
-
-
+# pick any image
+plot_image(3)
 
 
 
@@ -123,24 +152,11 @@ val_label=train_labels[val_idx]
 
 
 #-------------------------------------
-#BUILD MODEL SEQUENTIALLY (LINEAR STACK)
+#BUILD MODEL 
 #-------------------------------------
 
-model_type="DFF_ANN"
-#model_type="CNN"
-data_augmentation = False
 
-#HIDDEN LAYER PARAM
-N_HIDDEN    =   2           #NUMBER OF HIDDLE LAYERS
-N_NODES  	=	64          #NODES PER HIDDEN LAYER
-ACT_TYPE    =   'relu'  
-LR=0.001
-OUTPUT_ACTIVATION = 'softmax'
-OPTIMIZER	=	'rmsprop'
-LOSS = 'categorical_crossentropy'
-METRICS = ['acc']
-
-#BUILD LAYER ARRAYS FOR ANN
+#BUILD LAYER ARRAYS 
 ACTIVATIONS=[]; LAYERS=[]   
 for i in range(0,N_HIDDEN):
     LAYERS.append(N_NODES)
@@ -149,42 +165,43 @@ for i in range(0,N_HIDDEN):
 print("LAYERS:",LAYERS)
 print("ACTIVATIONS:", ACTIVATIONS)
 
-
-
-
 if(model_type=="DFF_ANN"):
     model = models.Sequential()
     #HIDDEN LAYERS
-    #model.add(layers.Dense(LAYERS[0], activation=ACTIVATIONS[0], input_shape=(train_images.shape[1]*train_images.shape[2])))
-    #for i in range(1,len(LAYERS)):
-        #model.add(layers.Dense(LAYERS[i], activation=ACTIVATIONS[i]))
+    model.add(layers.Dense(LAYERS[0], activation=ACTIVATIONS[0], input_shape=(train_images.shape[1],)))
+    for i in range(1,len(LAYERS)):
+        model.add(layers.Dense(LAYERS[i], activation=ACTIVATIONS[i]))
     #OUTPUT LAYER
-    model.add(layers.Dense(512, activation='relu', input_shape=(28 * 28,)))
-
-#SOFTMAX  --> 10 probability scores (summing to 1
-    model.add(layers.Dense(10,  activation='softmax'))
-    #model.add(layers.Dense(10, activation=OUTPUT_ACTIVATION))
+    #SOFTMAX  --> 10 probability scores 
+    model.add(layers.Dense(output_size, activation=OUTPUT_ACTIVATION))
     
-filter_size = (3,3)
+
     
 
 
 if(model_type=="CNN"):
 
     model = models.Sequential()
-    model.add(layers.Conv2D(32, filter_size, activation='relu', input_shape=(train_images.shape[1], train_images.shape[2], train_images.shape[3])))
-    model.add(layers.MaxPooling2D((2, 2)))
-    
-    model.add(layers.Conv2D(64, filter_size, activation='relu')) 
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(64, filter_size, activation='relu'))
+    model.add(layers.Conv2D(LAYERS[0], filter_size, activation=ACTIVATIONS[0], input_shape=(train_images.shape[1], train_images.shape[2], train_images.shape[3])))
+    model.add(layers.MaxPooling2D(pooling_size))
+    for i in range(1,len(LAYERS)):
+        model.add(layers.Conv2D(LAYERS[i], filter_size, activation=ACTIVATIONS[i])) 
+        model.add(layers.MaxPooling2D(pooling_size))
     model.add(layers.Flatten())
     if(data_augmentation==True):   
         # a Dropout layer
-        model.add(layers.Dropout(0.5))
-    model.add(layers.Dense(64, activation='relu'))
-    model.add(layers.Dense(10, activation='softmax'))
+        model.add(layers.Dropout(dropout))
+    model.add(layers.Dense(last_dense_node, activation=ACT_TYPE))
+    #OUTPUT LAYER
+    #SOFTMAX  --> 10 probability scores 
+    model.add(layers.Dense(output_size, activation=OUTPUT_ACTIVATION))
     
+
+#-------------------------------------y
+#COMPILE AND TRAIN MODEL
+#-------------------------------------
+
+
 #COMPILE
    
 if(OPTIMIZER=='rmsprop' and LR!=0):
@@ -203,29 +220,37 @@ history = model.fit(
         validation_data=(val_image,val_label)
         )
 
-#-------------------------------------y
-#COMPILE AND TRAIN MODEL
-#-------------------------------------
-
-
-
-
-
-
-
-#model.fit(train_image, train_label, epochs=epochs, batch_size=batch_size)
-
-
-
-
-
 
 #-------------------------------------
 # Include a method to save model and hyper parameters
 #-------------------------------------
 
 # Save the model 
-#model.save('mnsit.h5')
+model.save('mnsit.h5')
+
+class hyper_param:
+
+    #INITIALIZE
+	def __init__(self):
+            self.dataset=dataset
+            self.model_type = model_type
+            self.data_augmentation = data_augmentation
+            self.N_HIDDEN    =   N_HIDDEN         
+            self.N_NODES  	=	N_NODES        
+            self.ACT_TYPE    =   ACT_TYPE  
+            self.LR=LR
+            self.OUTPUT_ACTIVATION = OUTPUT_ACTIVATION 
+            self.OPTIMIZER	=	OPTIMIZER
+            self.LOSS = LOSS
+            self.METRICS =  METRICS
+            self.output_size = output_size 
+            self.filter_size = filter_size
+            self.pooling_size = pooling_size
+            self.last_dense_node = last_dense_node
+            self.dropout = dropout
+            self.epochs= epochs
+            self.batch_size = batch_size
+
 
 ##################################################
 #### Include a training/validation history plot
@@ -246,8 +271,6 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
-exit()
-
 #-------------------------------------
 #Print (train/test/val) metrics
 #-------------------------------------
@@ -256,6 +279,7 @@ val_loss, val_acc = model.evaluate(val_image, val_label, batch_size=batch_size)
 test_loss, test_acc = model.evaluate(test_images, test_labels, batch_size=test_images.shape[0])
 print('train_acc:', train_acc)
 print('test_acc:', test_acc)
+
 
 
 #-------------------------------------
@@ -321,6 +345,13 @@ for layer_name, layer_activation in zip(layer_names, activations):
 
 
 
+
+
+
+
+
+
+		
 
 
 
