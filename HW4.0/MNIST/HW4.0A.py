@@ -9,6 +9,9 @@ warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 from keras import optimizers
 
+#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
+
+
 
 ####################################################
 #### Load MNIST, MNIST Fashion, CIFAR-10 datasets
@@ -16,19 +19,24 @@ from keras import optimizers
 
 ##### Uncomment to choose dataset
 
-#dataset="MNIST"
+dataset="MNIST"
 #dataset="MNIST_FASHION"
-dataset="CIFAR-10"
+#dataset="CIFAR-10"
 
-
+#model_type = "CNN"
+model_type = "DFF_ANN"
 
 if(dataset=="MNIST"): 
     ### MNIST
     from keras.datasets import mnist
     
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-    train_images = train_images.reshape((60000, 28, 28, 1))
-    test_images = test_images.reshape((10000, 28, 28, 1))
+    if(model_type=="DFF_ANN"):
+        train_images = train_images.reshape((60000, 28*28))
+        test_images = test_images.reshape((10000, 28*28))
+    if(model_type=="CNN"):
+        train_images = train_images.reshape((60000, 28, 28, 1))
+        test_images = test_images.reshape((10000, 28, 28, 1))     
 
 if(dataset=="MNIST_FASHION"): 
     ### MNIST Fashion
@@ -44,7 +52,10 @@ if(dataset=="CIFAR-10"):
     train_images = train_images.reshape((50000, 32,32,3))
     test_images = test_images.reshape((10000, 32, 32, 3))
 
-
+NKEEP=train_images.shape[0]
+batch_size=int(0.05*NKEEP)
+epochs=2
+print("batch_size",batch_size)
 ### Reformat the data
 
 #NORMALIZE
@@ -73,14 +84,7 @@ def plot_image(number):
 
 
 
-#DEBUGGING
-NKEEP=10000
-batch_size=int(0.05*NKEEP)
-epochs=2
-print("batch_size",batch_size)
-rand_indices = np.random.permutation(train_images.shape[0])
-train_images=train_images[rand_indices[0:NKEEP],:,:]
-train_labels=train_labels[rand_indices[0:NKEEP]]
+
 
 
 
@@ -122,8 +126,9 @@ val_label=train_labels[val_idx]
 #BUILD MODEL SEQUENTIALLY (LINEAR STACK)
 #-------------------------------------
 
-model_type="CNN"
-data_augmentation = True
+model_type="DFF_ANN"
+#model_type="CNN"
+data_augmentation = False
 
 #HIDDEN LAYER PARAM
 N_HIDDEN    =   2           #NUMBER OF HIDDLE LAYERS
@@ -144,45 +149,59 @@ for i in range(0,N_HIDDEN):
 print("LAYERS:",LAYERS)
 print("ACTIVATIONS:", ACTIVATIONS)
 
-if(model_type=="ANN"):
+
+
+
+if(model_type=="DFF_ANN"):
     model = models.Sequential()
     #HIDDEN LAYERS
-    model.add(layers.Dense(LAYERS[0], activation=ACTIVATIONS[0], input_shape=(train_image.shape[1])))
-    for i in range(1,len(LAYERS)):
-        model.add(layers.Dense(LAYERS[i], activation=ACTIVATIONS[i]))
+    #model.add(layers.Dense(LAYERS[0], activation=ACTIVATIONS[0], input_shape=(train_images.shape[1]*train_images.shape[2])))
+    #for i in range(1,len(LAYERS)):
+        #model.add(layers.Dense(LAYERS[i], activation=ACTIVATIONS[i]))
     #OUTPUT LAYER
-    model.add(layers.Dense(10, activation=OUTPUT_ACTIVATION))
+    model.add(layers.Dense(512, activation='relu', input_shape=(28 * 28,)))
 
+#SOFTMAX  --> 10 probability scores (summing to 1
+    model.add(layers.Dense(10,  activation='softmax'))
+    #model.add(layers.Dense(10, activation=OUTPUT_ACTIVATION))
     
-
-   
+filter_size = (3,3)
     
 
 
 if(model_type=="CNN"):
 
     model = models.Sequential()
-    model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(train_images.shape[1], train_images.shape[2], train_images.shape[3])))
+    model.add(layers.Conv2D(32, filter_size, activation='relu', input_shape=(train_images.shape[1], train_images.shape[2], train_images.shape[3])))
     model.add(layers.MaxPooling2D((2, 2)))
     
-    model.add(layers.Conv2D(64, (3, 3), activation='relu')) 
+    model.add(layers.Conv2D(64, filter_size, activation='relu')) 
     model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    model.add(layers.Conv2D(64, filter_size, activation='relu'))
     model.add(layers.Flatten())
-    if(data_augmentation=="True"):   
+    if(data_augmentation==True):   
         # a Dropout layer
         model.add(layers.Dropout(0.5))
     model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dense(10, activation='softmax'))
-        
     
 #COMPILE
+   
 if(OPTIMIZER=='rmsprop' and LR!=0):
         opt = optimizers.RMSprop(learning_rate=LR)
 else:
-        opt = OPTIMIZER    
-
-
+        opt = OPTIMIZER 
+model.compile(optimizer=opt, 
+              loss=LOSS, 
+              metrics=METRICS
+                 )
+history = model.fit(
+        train_image,
+        train_label,
+        epochs=epochs,
+        batch_size=batch_size,
+        validation_data=(val_image,val_label)
+        )
 
 #-------------------------------------y
 #COMPILE AND TRAIN MODEL
@@ -190,23 +209,14 @@ else:
 
 
 
-model.compile(optimizer=opt, 
-              loss=LOSS, 
-              metrics=METRICS
-                 )
 
 
 
-model.fit(train_image, train_label, epochs=epochs, batch_size=batch_size)
+
+#model.fit(train_image, train_label, epochs=epochs, batch_size=batch_size)
 
 
-history = model.fit(
-    train_image,
-    train_label,
-    epochs=epochs,
-    batch_size=batch_size,
-    validation_data=(val_image,val_label)
-    )
+
 
 
 
@@ -215,7 +225,7 @@ history = model.fit(
 #-------------------------------------
 
 # Save the model 
-model.save('mnsit.h5')
+#model.save('mnsit.h5')
 
 ##################################################
 #### Include a training/validation history plot
@@ -236,7 +246,7 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
-
+exit()
 
 #-------------------------------------
 #Print (train/test/val) metrics
