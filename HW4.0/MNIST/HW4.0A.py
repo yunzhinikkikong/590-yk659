@@ -41,7 +41,7 @@ pooling_size = (2,2)
 last_dense_node = 64
 # data augmentation thresold
 dropout = 0.5
-epochs=2
+epochs=100
 # batch size will be include after laoding dataset
 
 ####################################################
