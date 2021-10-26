@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-
+import numpy as np
 import nltk
 import string
 nltk.download('punkt')
 
-Frankenstein = open('/content/Frankenstein.txt')
-PrideandPrejudice = open('/content/PrideandPrejudice.txt')
-Odyssey = open('/content/The_Odyssey.txt')
+Frankenstein = open('/Users/nikkkikong/Desktop/Frankenstein.txt')
+PrideandPrejudice = open('/Users/nikkkikong/Desktop/PrideandPrejudice.txt')
+Odyssey = open('/Users/nikkkikong/Desktop/The_Odyssey.txt')
 
 def read_novel(f):
   # read .txt files
@@ -35,21 +35,18 @@ data_list = Frankenstein_list+PrideandPrejudice_list+Odyssey_list
 len(data_list)
 
 # Using Keras for word-level one-hot encoding
-def onehot(samples):
-  from keras.preprocessing.text import Tokenizer
-  tokenizer = Tokenizer(num_words=1000)
-  tokenizer.fit_on_texts(samples)
-  sequences = tokenizer.texts_to_sequences(samples)
-  one_hot_results = tokenizer.texts_to_matrix(samples, mode='binary')
-  word_index = tokenizer.word_index
-  print('Found %s unique tokens.' % len(word_index))
-  return one_hot_results
-# tokenize three novel list
-data_onehot=onehot(data_list)
 
-data_onehot.shape
+from keras.preprocessing.text import Tokenizer
+tokenizer = Tokenizer(num_words=1000)
+tokenizer.fit_on_texts(data_list)
+sequences = tokenizer.texts_to_sequences(data_list)
+one_hot_results = tokenizer.texts_to_matrix(data_list, mode='binary')
+word_index = tokenizer.word_index
+print('Found %s unique tokens.' % len(word_index))
 
-data_onehot
+
+data_onehot=one_hot_results
+
 
 # labels: novel names
 # 1: Frankenstein
@@ -91,10 +88,10 @@ labels_test = labels[test_idx]
 
 import pickle
 
-dataset_dict = {"X_train": X_train, "X_test": X_test, "X_val": X_val, "labels_train": labels_train, "labels_test": labels_test, "labels_val": labels_val}
+dataset_dict = {"X_train": X_train, "X_test": X_test, "X_val": X_val, "train_labels": labels_train, "test_labels": labels_test, "val_labels": labels_val}
 
 with open('noveldataset_dict.pickle', 'wb') as file:
     pickle.dump(dataset_dict, file)
 
-with open('noveldataset_dict.pickle', 'rb') as file:
-    dataset_dict = pickle.load(file)
+#with open('noveldataset_dict.pickle', 'rb') as file:
+    #dataset_dict = pickle.load(file)
