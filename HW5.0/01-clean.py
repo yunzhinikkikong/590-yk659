@@ -49,10 +49,10 @@ data_onehot=one_hot_results
 
 
 # labels: novel names
-# 1: Frankenstein
-# 2: PrideandPrejudice
-# 3: Odyssey
-labels=np.concatenate((np.repeat(1, 3196), np.repeat(2, 4778),np.repeat(3, 3854)), axis=None)
+# 0: Frankenstein
+# 1: PrideandPrejudice
+# 2: Odyssey
+labels=np.concatenate((np.repeat(0, 3196), np.repeat(1, 4778),np.repeat(2, 3854)), axis=None)
 
 labels.shape
 
