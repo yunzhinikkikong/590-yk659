@@ -6,9 +6,9 @@ import string
 nltk.download('punkt')
 
 
-Frankenstein = open('/Users/nikkkikong/Desktop/Frankenstein.txt')
-PrideandPrejudice = open('/Users/nikkkikong/Desktop/PrideandPrejudice.txt')
-Odyssey = open('/Users/nikkkikong/Desktop/The_Odyssey.txt')
+Frankenstein = open('Frankenstein.txt')
+PrideandPrejudice = open('PrideandPrejudice.txt')
+Odyssey = open('The_Odyssey.txt')
 
 def read_novel(f):
   # read .txt files
