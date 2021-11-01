@@ -29,7 +29,7 @@ train_labels = to_categorical(train_labels)
 val_labels = to_categorical(val_labels)
 test_labels = to_categorical(test_labels)
 
-##### Load the models
+##### Load the models and print 
 
 
 ##########################################

@@ -38,6 +38,7 @@ test_labels = to_categorical(test_labels)
 
 ### RNN model, here I will use SimpleRNN
 
+### try L1 and L2 regularization with different value of parameter
 
 ############################################################
 ############################################################
@@ -94,7 +95,7 @@ print("---------------------------")
 
 model = Sequential()
 model.add(layers.Embedding(max_words, embedding_dim, input_length=maxlen))
-### add L1 regularizatio
+### add L1 regularization
 model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='relu'))
 model.add(layers.Conv1D(32, 7, activation='relu'))
 model.add(layers.MaxPooling1D(3))
@@ -123,7 +124,7 @@ print("---------------------------")
 
 model = Sequential() 
 model.add(layers.Embedding(max_words, embedding_dim, input_length=maxlen))
-### add L1 regularizatio
+### add L1 regularization
 model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='relu'))
 model.add(layers.SimpleRNN(32)) 
 model.add(layers.Dense(3, activation='softmax'))

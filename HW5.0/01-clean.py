@@ -73,6 +73,7 @@ if(f_train+f_val+f_test != 1.0):
 	raise ValueError("f_train+f_val+f_test MUST EQUAL 1");
 
 #PARTITION DATA
+np.random.seed(1) #set seed
 rand_indices = np.random.permutation(data.shape[0])
 CUT1=int(f_train*data.shape[0]); 
 CUT2=int((f_train+f_val)*data.shape[0]); 
