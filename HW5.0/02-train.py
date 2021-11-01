@@ -1,10 +1,11 @@
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+from keras import regularizers
 
 # load the dataset
 
-with open('/Users/nikkkikong/590-yk659/HW5.0/noveldataset_dict.pickle', 'rb') as file:
+with open('noveldataset_dict.pickle', 'rb') as file:
     dataset_dict = pickle.load(file)
 
 X_train = dataset_dict['X_train']
@@ -89,13 +90,19 @@ print("---------------------------")
 print("1D-CNN")  
 print("---------------------------")
 
+
+
 model = Sequential()
 model.add(layers.Embedding(max_words, embedding_dim, input_length=maxlen))
-model.add(layers.Conv1D(64, 7, activation='relu'))
-model.add(layers.MaxPooling1D(5))
-model.add(layers.Conv1D(64, 7, activation='relu'))
+### add L1 regularizatio
+model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='relu'))
+model.add(layers.Conv1D(32, 7, activation='relu'))
+model.add(layers.MaxPooling1D(3))
+model.add(layers.Conv1D(32, 7, activation='relu'))
+model.add(layers.MaxPooling1D(3))
+model.add(layers.Conv1D(32, 7, activation='relu'))
 model.add(layers.GlobalMaxPooling1D())
-model.add(layers.Dense(3))
+model.add(layers.Dense(3, activation='softmax'))
 model.compile(optimizer='rmsprop',
               loss='categorical_crossentropy',
               metrics=['acc','AUC'])
@@ -109,7 +116,6 @@ report(history,title="CNN")
 
 
 
-
 print("---------------------------")
 print("SimpleRNN")  
 print("---------------------------")
@@ -117,6 +123,8 @@ print("---------------------------")
 
 model = Sequential() 
 model.add(layers.Embedding(max_words, embedding_dim, input_length=maxlen))
+### add L1 regularizatio
+model.add(layers.Dense(64, kernel_regularizer=regularizers.l1(0.001),activation='relu'))
 model.add(layers.SimpleRNN(32)) 
 model.add(layers.Dense(3, activation='softmax'))
 model.compile(optimizer='rmsprop',
