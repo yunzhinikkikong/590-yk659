@@ -94,7 +94,7 @@ plt.figure()
 plt.plot(epochs, history.history['loss'], 'bo', label='Training loss')
 plt.plot(epochs, history.history['val_loss'], 'b', label='Validation loss')
 
-plt.title("MNIST-- Convolutional AE")
+plt.title("cifar10-- Convolutional AE")
 plt.legend()
 plt.show()
 
