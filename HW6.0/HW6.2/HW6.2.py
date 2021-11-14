@@ -25,6 +25,8 @@ from keras.datasets import mnist
 #NORMALIZE AND RESHAPE
 X=X/np.max(X) 
 X=X.reshape(60000,28,28,1); 
+test_images=test_images/np.max(test_images) 
+test_images=test_images.reshape(10000,28,28,1)
 #MODEL
 input_img = Input(shape=(28, 28, 1))
 
@@ -54,6 +56,13 @@ model.compile(optimizer='rmsprop',
 
 
 history = model.fit(X, X, epochs=10, batch_size=500,validation_split=0.2)
+
+# save model
+
+model.save('mnistCNNAE.h5')
+
+# reported test accuracy after training
+print("TEST METRIC (loss) after training:",model.evaluate(test_images,test_images,batch_size=500))
 
 # define error threshold
 

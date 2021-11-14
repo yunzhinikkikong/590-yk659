@@ -17,6 +17,9 @@ from keras.datasets import mnist
 #NORMALIZE AND RESHAPE
 X=X/np.max(X) 
 X=X.reshape(60000,28*28); 
+test_images=test_images/np.max(test_images) 
+test_images=test_images.reshape(10000,28*28)
+
 
 #MODEL
 n_bottleneck=50
@@ -34,6 +37,10 @@ model.compile(optimizer='rmsprop',
 
 history = model.fit(X, X, epochs=10, batch_size=500,validation_split=0.2)
 
+# save model
+
+model.save('mnistFNNAE.h5')
+
 # define error threshold
 
 threshold = 4 * model.evaluate(X,X,batch_size=X.shape[0])
@@ -49,6 +56,9 @@ preds = anomaly.map(lambda x: 1.0 if x == True else 0)
 
 print("anomaly fraction (“trained” data):", preds.sum()/X.shape[0],"\n","anomaly count(“trained” data):",preds.sum())
 
+
+# reported test accuracy after training
+print("TEST METRIC (loss) after training:",model.evaluate(test_images,test_images,batch_size=500))
 
 # Plot original and RECONSTRUCTED 
 
@@ -91,6 +101,8 @@ x=x.reshape(60000,28*28);
 
 
 x1= model.predict(x) 
+
+
 errors = losses.mse(x1, x)
 
 # 1 = anomaly, 0 = normal

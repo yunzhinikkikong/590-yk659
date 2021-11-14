@@ -61,6 +61,8 @@ Epoch 20/20
 80/80 [==============================] - 40s 504ms/step - loss: 0.0040 - val_loss: 0.0034
 1/1 [==============================] - 38s 38s/step - loss: 0.0034
 
+TEST METRIC (loss) after training: 0.0049667805433273315
+
 anomaly fraction (“trained” data): 0.00058 
  anomaly count(“trained” data): 29.0
 

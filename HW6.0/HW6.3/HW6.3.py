@@ -24,6 +24,7 @@ from keras.datasets import cifar10
 
 #NORMALIZE AND RESHAPE
 X=X/np.max(X) 
+X_test=X_test/np.max(X_test) 
 
 #MODEL
 input_img = Input(shape=(32, 32, 3))
@@ -54,6 +55,13 @@ model.compile(optimizer='rmsprop',
 
 
 history = model.fit(X, X, epochs=20, batch_size=500,validation_split=0.2)
+
+# save model
+
+model.save('cifar10CnnAE.h5')
+
+# reported test accuracy after training
+print("TEST METRIC (loss) after training:",model.evaluate(X_test,X_test,batch_size=500))
 
 # define error threshold
 
